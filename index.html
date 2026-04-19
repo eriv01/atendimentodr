@@ -72,6 +72,11 @@ html,body{height:100%;background:#111B21;font-family:'Segoe UI','Helvetica Neue'
 .cta-btn{display:block;width:100%;margin-top:11px;padding:12px 16px;background:linear-gradient(135deg,#128C7E,#075E54);color:#fff;border:none;border-radius:24px;font-size:15px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;transition:transform .1s,opacity .15s;box-shadow:0 3px 14px rgba(18,140,126,.45);letter-spacing:.3px}
 .cta-btn:active{transform:scale(.96)}
 
+/* CTA WHATSAPP */
+.cta-wpp{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:11px;padding:13px 16px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;border-radius:24px;font-size:15px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;transition:transform .1s,opacity .15s;box-shadow:0 3px 14px rgba(37,211,102,.45);letter-spacing:.3px}
+.cta-wpp:active{transform:scale(.96)}
+.cta-wpp svg{width:20px;height:20px;fill:#fff;flex-shrink:0}
+
 /* QUICK REPLIES */
 #qr{display:flex;flex-wrap:wrap;gap:7px;padding:7px 10px 4px;z-index:2;position:relative}
 .qrb{background:var(--white);color:var(--g-mid);border:1.5px solid var(--g-mid);border-radius:20px;padding:7px 14px;font-size:13.5px;font-weight:500;cursor:pointer;transition:background .15s,color .15s;box-shadow:0 1px 3px var(--sh);white-space:nowrap}
@@ -90,7 +95,8 @@ html,body{height:100%;background:#111B21;font-family:'Segoe UI','Helvetica Neue'
 .qprog-lbl{font-size:12px;color:var(--txt-l);margin-bottom:4px}
 .qprog-bar{height:5px;background:#e0e0e0;border-radius:3px;overflow:hidden;margin-bottom:12px}
 .qprog-fill{height:100%;background:linear-gradient(90deg,var(--g-mid),var(--g-light));border-radius:3px;transition:width .5s ease}
-.qq{font-size:14px;font-weight:600;color:var(--txt);margin-bottom:10px;line-height:1.4}
+.qq{font-size:14px;font-weight:600;color:var(--txt);margin-bottom:6px;line-height:1.4}
+.qq-sub{font-size:12px;color:var(--txt-l);margin-bottom:10px;line-height:1.35;font-style:italic}
 .qopts{display:flex;flex-direction:column;gap:7px}
 .qopt{background:var(--ibg);border:1.5px solid var(--ibg);border-radius:10px;padding:9px 14px;font-size:13.5px;cursor:pointer;color:var(--txt);transition:background .15s,border-color .15s,color .15s;text-align:left}
 .qopt.sel,.qopt:active{background:var(--g-mid);border-color:var(--g-mid);color:#fff;pointer-events:none}
@@ -103,6 +109,12 @@ html,body{height:100%;background:#111B21;font-family:'Segoe UI','Helvetica Neue'
 .ring{color:var(--txt-m);font-weight:500}
 .rqty{color:var(--g-dark);font-weight:700;font-size:14px}
 .rnote{font-size:12px;color:var(--txt-l);margin-top:10px;line-height:1.4;font-style:italic}
+
+/* URGENCY CARD */
+.ucard{background:linear-gradient(135deg,#fff8e1,#fff3cd);border:1.5px solid #f9a825;border-radius:14px;padding:14px;margin-top:4px}
+.ucard-title{font-size:14px;font-weight:700;color:#e65100;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.ucard-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;font-size:13.5px;color:var(--txt)}
+.ucard-item .ui-icon{font-size:15px;flex-shrink:0;margin-top:1px}
 
 /* PROGRESS */
 .prog-wrap{margin:6px 0 4px}
@@ -194,14 +206,15 @@ html,body{height:100%;background:#111B21;font-family:'Segoe UI','Helvetica Neue'
 
 <script>
 /* =============================================
-   ✏️ CONFIG — edite aqui
+   CONFIG
 ============================================= */
 const C = {
   nome:    "Dr. Ricardo Campo",
   avatar:  "https://metodotripe.shop/wp-content/uploads/2026/04/Screenshot-82.png",
-  link:    "#", // ← SEU LINK DE CHECKOUT
+  link:    "#",
+  wppLink: "https://wa.me/5500000000000?text=Quero+receber+minha+receita+personalizada+do+Método+Bicarbonato",
   produto: "Método Bicarbonato",
-  vsl:     "https://metodotripe.shop/wp-content/uploads/2026/04/Screenshot-82.png",
+  vsl:     "https://metodotripe.shop/wp-content/uploads/2026/04/DR_VSL-01.mp4",
   depos: [
     { url:"https://metodotripe.shop/wp-content/uploads/2026/04/DR_VSL-01.mp4", nome:"Carlos M., 47 anos" },
     { url:"https://metodotripe.shop/wp-content/uploads/2026/04/DR_VSL-01.mp4", nome:"Roberto S., 52 anos" },
@@ -211,21 +224,120 @@ const C = {
 };
 
 /* =============================================
-   QUIZ
+   QUIZ — 5 PERGUNTAS
 ============================================= */
 const QUIZ = [
-  { q:"Quantos anos você tem?", opts:["18–30 anos","31–45 anos","46–55 anos","56+ anos"], k:"idade" },
-  { q:"Como está sua energia e disposição hoje?", opts:["Ótima, sem reclamações","Razoável, poderia ser melhor","Baixa, me sinto cansado sempre","Péssima, sem ânimo pra nada"], k:"energia" },
-  { q:"E sua performance e libido?", opts:["Excelente","Boa, mas já foi melhor","Com quedas frequentes","Muito comprometida, preciso de ajuda"], k:"libido" },
-  { q:"Você dorme bem?", opts:["Sim, durmo muito bem","Às vezes tenho insônia","Durmo mal com frequência","Raramente consigo descansar de verdade"], k:"sono" },
+  {
+    q: "Com que frequência você consegue atingir rigidez TOTAL durante uma relação sexual?",
+    sub: "Esse dado revela seu nível de vascularização peniana",
+    opts: [
+      "Quase nunca — fico mole antes de terminar",
+      "Raramente — acontece mas é instável",
+      "Às vezes — depende do dia",
+      "Frequentemente — só falha ocasionalmente",
+      "Sempre — sem nenhuma dificuldade"
+    ],
+    k: "rigidez"
+  },
+  {
+    q: "Você ainda acorda com ereção matinal (o \"sinal de testosterona\")?",
+    sub: "Indicador clínico direto dos seus níveis hormonais",
+    opts: [
+      "Nunca — faz muito tempo que não acontece",
+      "Raramente — 1 vez por semana ou menos",
+      "Quase todos os dias — meu corpo ainda responde bem"
+    ],
+    k: "matinal"
+  },
+  {
+    q: "Você consegue manter a ereção firme do início ao FIM da relação?",
+    sub: "Esse fator define a eficácia do protocolo para você",
+    opts: [
+      "Não — perco antes de terminar com frequência",
+      "Às vezes — falha na hora mais crítica",
+      "Sim — sem problemas para manter até o fim"
+    ],
+    k: "manutencao"
+  },
+  {
+    q: "Como está seu desejo sexual nos últimos 3 meses?",
+    sub: "O libido revela o estado atual da sua testosterona livre",
+    opts: [
+      "Muito baixo — raramente sinto vontade",
+      "Baixo — preciso de muito estímulo",
+      "Normal — nada me preocupa muito",
+      "Alto — só quero resultados físicos melhores"
+    ],
+    k: "libido"
+  },
+  {
+    q: "Ser maior e ter mais controle nas relações é uma prioridade REAL para você agora?",
+    sub: "Sua resposta define o plano ideal para o seu perfil",
+    opts: [
+      "SIM — quero resolver isso o quanto antes",
+      "Sim — mas posso esperar um pouco",
+      "Estou apenas pesquisando por agora"
+    ],
+    k: "prioridade"
+  },
 ];
 
-const RECEITAS = {
-  "18–30 anos": { bic:"3,2g", agua:"280ml", limao:"½ unidade", mel:"1 col. chá", intervalo:"A cada 12h" },
-  "31–45 anos": { bic:"3,8g", agua:"300ml", limao:"½ unidade", mel:"1 col. chá", intervalo:"A cada 12h" },
-  "46–55 anos": { bic:"4,2g", agua:"320ml", limao:"¾ unidade", mel:"1,5 col. chá", intervalo:"A cada 8h" },
-  "56+ anos":   { bic:"4,5g", agua:"350ml", limao:"1 unidade",  mel:"1,5 col. chá", intervalo:"A cada 8h" },
-};
+/* =============================================
+   RECEITAS PERSONALIZADAS por perfil
+   (baseado na combinação rigidez + prioridade)
+============================================= */
+function calcReceita(respostas) {
+  const urgente = respostas.prioridade === "SIM — quero resolver isso o quanto antes";
+  const grave = ["Quase nunca — fico mole antes de terminar","Raramente — acontece mas é instável"].includes(respostas.rigidez);
+  const semMatinal = respostas.matinal === "Nunca — faz muito tempo que não acontece";
+
+  if (grave || semMatinal) {
+    return {
+      bic: "4,5g",
+      agua: "350ml",
+      limao: "1 unidade",
+      mel: "1,5 col. chá",
+      intervalo: "A cada 8h (manhã, tarde, noite)",
+      perfil: "Crítico",
+      prazo: "72 horas"
+    };
+  } else if (urgente) {
+    return {
+      bic: "4,0g",
+      agua: "320ml",
+      limao: "¾ unidade",
+      mel: "1 col. chá",
+      intervalo: "A cada 12h (manhã e noite)",
+      perfil: "Intermediário",
+      prazo: "5 dias"
+    };
+  } else {
+    return {
+      bic: "3,5g",
+      agua: "300ml",
+      limao: "½ unidade",
+      mel: "1 col. chá",
+      intervalo: "1x ao dia (pela manhã)",
+      perfil: "Preventivo",
+      prazo: "7 a 10 dias"
+    };
+  }
+}
+
+function gerarCopyReceita(respostas, receita) {
+  const problemas = [];
+  if (["Quase nunca — fico mole antes de terminar","Raramente — acontece mas é instável"].includes(respostas.rigidez)) problemas.push("rigidez comprometida");
+  if (respostas.matinal === "Nunca — faz muito tempo que não acontece") problemas.push("ausência de ereção matinal");
+  if (respostas.manutencao === "Não — perco antes de terminar com frequência") problemas.push("dificuldade de manutenção");
+  if (["Muito baixo — raramente sinto vontade","Baixo — preciso de muito estímulo"].includes(respostas.libido)) problemas.push("libido suprimida");
+
+  if (problemas.length === 0) {
+    return `Analisei suas respostas e o seu perfil é de *prevenção e otimização*. ✅\n\nSeu corpo ainda responde bem — mas sem o protocolo certo, a queda vem mais rápido do que você imagina. A receita abaixo foi calibrada para manter e elevar o que você já tem. 🔥`;
+  }
+
+  const lista = problemas.map(p => `• ${p}`).join('\n');
+  return `Analisei suas respostas com cuidado. 🔬\n\nIdentifiquei sinais clínicos de:\n${lista}\n\nIsso não é fraqueza — é bioquímica. O ambiente hormonal do seu corpo está travando o que ele naturalmente saberia fazer.\n\nA fórmula abaixo foi calibrada *especificamente para o seu perfil ${receita.perfil}* — doses ajustadas para reativar sua vascularização e produção de testosterona no menor tempo possível. Os primeiros sinais aparecem em *${receita.prazo}*. 💊`;
+}
 
 /* =============================================
    INTENÇÕES
@@ -242,7 +354,7 @@ const INTENTS = [
   { k:["garantia","devolução","reembolso","satisfação","risco","arrependimento","prazo","devolver"],
     r:[`*Garantia total de 7 dias.* 🛡️\n\nSe por qualquer motivo você não ficar 100% satisfeito, devolvo cada centavo. Sem perguntas, sem burocracia.\n\nA confiança no método é tão grande que eu assino embaixo. Você não tem nada a perder — só a ganhar. 😉`], cta:true },
   { k:["para quem","pra quem","para mim","posso usar","quem pode","indicado","serve","minha situação"],
-    r:[`Para qualquer homem que queira recuperar o que o tempo e o estresse foram tirando:\n\n✅ Mais energia e disposição diária\n✅ Libido de volta ao pico\n✅ Performance que surpreende\n✅ Confiança e autoestima elevadas\n\nDos 25 aos 70 anos — o protocolo se adapta ao seu perfil (por isso fazemos o teste personalizado!). 😊`], cta:true },
+    r:[`Para qualquer homem que queira recuperar o que o tempo e o estresse foram tirando:\n\n✅ Mais energia e disposição diária\n✅ Libido de volta ao pico\n✅ Performance que surpreende\n✅ Confiança e autoestima elevadas\n\nDos 25 aos 70 anos — o protocolo se adapta ao seu perfil. 😊`], cta:true },
   { k:["depoimento","funciona mesmo","prova","real","verdade","comprovado","resultado real","acreditar"],
     r:[`Entendo o ceticismo — e é saudável! 😄\n\nMas os números falam sozinhos:\n\n📊 87% relataram melhora na energia em até 10 dias\n📊 81% relataram melhora significativa na libido\n📊 93% voltariam a comprar\n\nVeja os depoimentos em vídeo logo abaixo 👇`], cta:false },
   { k:["quanto tempo","prazo","dias","semanas","rápido","quando vejo","quando começa","demora"],
@@ -295,7 +407,7 @@ function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('sho
 /* =============================================
    ADD MESSAGE
 ============================================= */
-function addMsg({text,type,first=false,cta=false,video,img,file,quiz,recipe,prog}){
+function addMsg({text,type,first=false,cta=false,ctaWpp=false,video,img,file,quiz,recipe,prog,urgency}){
   reinsT();
   const wrap=document.createElement('div');
   wrap.className=`bw ${type}${first?' first':''}`;
@@ -318,6 +430,8 @@ function addMsg({text,type,first=false,cta=false,video,img,file,quiz,recipe,prog
     bub.style.padding='6px'; bub.appendChild(buildQuizCard(quiz));
   } else if(recipe){
     bub.style.padding='6px'; bub.appendChild(buildRecipe(recipe));
+  } else if(urgency){
+    bub.style.padding='6px'; bub.appendChild(buildUrgency(urgency));
   } else if(prog){
     const pw=document.createElement('div'); pw.className='prog-wrap';
     const pl=document.createElement('div'); pl.className='prog-lbl'; pl.textContent=prog.label;
@@ -335,6 +449,14 @@ function addMsg({text,type,first=false,cta=false,video,img,file,quiz,recipe,prog
     a.innerHTML=`🔥 Quero o ${C.produto} AGORA!`;
     bub.appendChild(a);
   }
+
+  if(ctaWpp){
+    const a=document.createElement('a'); a.className='cta-wpp';
+    a.href=C.wppLink; a.target='_blank'; a.rel='noopener';
+    a.innerHTML=`<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg> Receber minha receita no WhatsApp`;
+    bub.appendChild(a);
+  }
+
   wrap.appendChild(bub); wrap.appendChild(metaEl(type));
   msgEl.insertBefore(wrap,typEl); scrollB();
   return wrap;
@@ -360,7 +482,7 @@ function clearQR(){ qrEl.innerHTML=''; }
 /* =============================================
    QUIZ CARDS
 ============================================= */
-function buildQuizCard({q,opts,step}){
+function buildQuizCard({q,sub,opts,step}){
   const card=document.createElement('div'); card.className='qcard';
   const pl=document.createElement('div'); pl.className='qprog-lbl'; pl.textContent=`Pergunta ${step} de ${QUIZ.length}`;
   const pb=document.createElement('div'); pb.className='qprog-bar';
@@ -368,29 +490,51 @@ function buildQuizCard({q,opts,step}){
   setTimeout(()=>pf.style.width=(step/QUIZ.length*100)+'%',100);
   pb.appendChild(pf);
   const qq=document.createElement('div'); qq.className='qq'; qq.textContent=q;
+  const cards=[pl,pb,qq];
+  if(sub){ const qs=document.createElement('div'); qs.className='qq-sub'; qs.textContent=sub; cards.push(qs); }
   const oo=document.createElement('div'); oo.className='qopts';
   for(const o of opts){
     const btn=document.createElement('button'); btn.className='qopt'; btn.textContent=o;
     btn.onclick=()=>{ btn.classList.add('sel'); handleQuizResp(o); };
     oo.appendChild(btn);
   }
-  card.appendChild(pl); card.appendChild(pb); card.appendChild(qq); card.appendChild(oo);
+  for(const c of cards) card.appendChild(c);
+  card.appendChild(oo);
   return card;
 }
 
 function buildRecipe(r){
   const card=document.createElement('div'); card.className='rcard';
-  const t=document.createElement('div'); t.className='rtitle'; t.innerHTML='🧪 Sua Receita Personalizada';
+  const t=document.createElement('div'); t.className='rtitle'; t.innerHTML=`🧪 Sua Receita — Perfil <strong>${r.perfil}</strong>`;
   card.appendChild(t);
-  const rows=[['Bicarbonato de sódio',r.bic],['Água filtrada',r.agua],['Suco de limão',r.limao],['Mel puro',r.mel],['Frequência das doses',r.intervalo]];
+  const rows=[
+    ['Bicarbonato de sódio', r.bic],
+    ['Água filtrada', r.agua],
+    ['Suco de limão', r.limao],
+    ['Mel puro', r.mel],
+    ['Frequência das doses', r.intervalo],
+    ['Primeiros resultados em', r.prazo],
+  ];
   for(const[i,q] of rows){
     const row=document.createElement('div'); row.className='rrow';
     row.innerHTML=`<span class="ring">${i}</span><span class="rqty">${q}</span>`;
     card.appendChild(row);
   }
   const n=document.createElement('div'); n.className='rnote';
-  n.textContent='⚠️ Esta receita foi calculada para o seu perfil. O protocolo completo, horários exatos e orientações de segurança estão no material do Método Bicarbonato.';
+  n.textContent='⚠️ Esta fórmula foi calculada para o seu perfil. O protocolo completo com horários exatos, potencializadores e o que NUNCA misturar está no material do Método Bicarbonato.';
   card.appendChild(n);
+  return card;
+}
+
+function buildUrgency(items){
+  const card=document.createElement('div'); card.className='ucard';
+  const t=document.createElement('div'); t.className='ucard-title'; t.innerHTML='⚡ O que você recebe agora:';
+  card.appendChild(t);
+  for(const item of items){
+    const row=document.createElement('div'); row.className='ucard-item';
+    row.innerHTML=`<span class="ui-icon">${item.icon}</span><span>${item.text}</span>`;
+    card.appendChild(row);
+  }
   return card;
 }
 
@@ -400,7 +544,7 @@ function buildRecipe(r){
 async function nextQ(){
   if(qStep>=QUIZ.length){ await finalizarQuiz(); return; }
   const q=QUIZ[qStep]; qStep++;
-  await botSay({quiz:{q:q.q,opts:q.opts,step:qStep},first:true},{delay:900});
+  await botSay({quiz:{q:q.q,sub:q.sub,opts:q.opts,step:qStep},first:true},{delay:900});
 }
 
 async function handleQuizResp(resp){
@@ -414,26 +558,87 @@ async function handleQuizResp(resp){
 
 async function finalizarQuiz(){
   qAtivo=false;
-  await botSay({text:"Analisando seu perfil... ⚙️",first:true},{delay:750});
-  await botSay({prog:{label:'Calculando sua receita exclusiva...',pct:100},first:false},{delay:1300});
+  await botSay({text:"Analisando seu perfil clínico... ⚙️",first:true},{delay:750});
+  await botSay({prog:{label:'Calculando sua fórmula exclusiva...',pct:100},first:false},{delay:1300});
   await wait(500);
-  await botSay({text:"✅ *Análise concluída!*\n\nBaseado no seu perfil, calculei as doses exatas de cada ingrediente para *maximizar os resultados no menor tempo possível.*",first:true},{delay:1000});
-  const r=RECEITAS[qResp.idade]||RECEITAS["31–45 anos"];
-  await botSay({recipe:r,first:false},{delay:1100});
+
+  const receita = calcReceita(qResp);
+  const copy = gerarCopyReceita(qResp, receita);
+
+  await botSay({text:copy, first:true},{delay:1100});
+  await botSay({recipe:receita,first:false},{delay:1200});
+
+  await wait(600);
+
+  // Copy de urgência / persuasão pós-receita
   await botSay({
-    text:"Esta é apenas uma prévia da sua receita. 👆\n\nNo material completo você recebe:\n\n📋 Protocolo passo a passo detalhado\n⏰ Horários exatos para cada dose\n🚫 O que NUNCA misturar\n📈 Como potencializar os resultados x3\n🔒 Acesso vitalício + atualizações gratuitas",
-    cta:true, first:true
+    text:`Essa fórmula é *sua*. Calculada segundo as suas respostas — não é genérica, não foi feita para mais ninguém. 🎯\n\nMas a receita sozinha é só o começo. O que transforma resultado em resultado *consistente* é o protocolo completo:\n\n📋 *Horários exatos* de cada dose\n🔥 *Potencializadores naturais* que multiplicam o efeito x3\n🚫 *O que NUNCA misturar* — isso pode anular tudo\n📈 Ajustes progressivos conforme você avança\n\nIsso só existe dentro do *Método Bicarbonato*. 👇`,
+    first:true
+  },{delay:1600});
+
+  // Urgency card
+  await botSay({
+    urgency:[
+      {icon:'📦',text:'Protocolo completo passo a passo — do dia 1 ao dia 30'},
+      {icon:'⏰',text:'Horários exatos para potencializar cada dose da sua receita'},
+      {icon:'🔒',text:'Acesso vitalício + atualizações gratuitas'},
+      {icon:'🛡️',text:'Garantia total de 7 dias — sem perguntas'},
+      {icon:'💊',text:'Bônus: Guia de potencializadores naturais exclusivo'},
+    ],
+    first:false
+  },{delay:1200});
+
+  await wait(400);
+
+  // CTA compra
+  await botSay({
+    text:`Homens com o seu perfil que aplicaram esse protocolo relataram os primeiros resultados em *${receita.prazo}*. 🔥\n\nSua receita está pronta. O próximo passo é você.`,
+    cta:true,
+    first:true
+  },{delay:1300});
+
+  await wait(600);
+
+  // Transição suave para depoimentos
+  await botSay({
+    text:`Antes de decidir, veja o que outros homens — com perfis parecidos com o *seu* — estão dizendo depois de seguir o protocolo. 👇`,
+    first:true
+  },{delay:1400});
+
+  // Depoimentos
+  await mostrarDeposApos();
+}
+
+/* =============================================
+   DEPOIMENTOS (pós-quiz, com CTA WhatsApp)
+============================================= */
+async function mostrarDeposApos(){
+  for(let i=0;i<C.depos.length;i++){
+    await botSay({video:{url:C.depos[i].url,nome:C.depos[i].nome},first:i===0},{delay:i===0?900:500});
+  }
+
+  await botSay({
+    text:`Resultados *reais*, de homens reais — com histórias parecidas com a sua. 💪\n\nSua receita personalizada já está calculada. Agora basta garantir o protocolo completo para aplicá-la do jeito certo.`,
+    first:true
   },{delay:1500});
+
+  // CTA WhatsApp
+  await botSay({
+    text:`Clique abaixo e receba sua receita completa diretamente no WhatsApp — com o protocolo passo a passo para começar *hoje*. ⬇️`,
+    ctaWpp:true,
+    first:true
+  },{delay:1100});
+
   setTimeout(()=>setQR([
-    {label:"🛒 Garantir acesso agora!",v:"quero comprar agora"},
+    {label:"🛒 Garantir meu acesso completo!",v:"quero comprar agora"},
     {label:"💳 Formas de pagamento",v:"formas de pagamento"},
     {label:"🛡️ Tem garantia?",v:"tem garantia"},
-    {label:"💬 Ver depoimentos",v:"__depos__"},
+    {label:"💰 Quanto custa?",v:"quanto custa"},
   ]),700);
 }
 
 /* =============================================
-   DEPOIMENTOS
+   DEPOIMENTOS (fluxo manual)
 ============================================= */
 async function mostrarDepos(){
   await botSay({text:"Selecionei depoimentos *reais* de homens que já fizeram o protocolo. 👇\n\nAssista — eles contam os resultados com as próprias palavras:",first:true},{delay:1200});
@@ -441,9 +646,14 @@ async function mostrarDepos(){
     await botSay({video:{url:C.depos[i].url,nome:C.depos[i].nome},first:i===0},{delay:i===0?900:500});
   }
   await botSay({
-    text:"Resultados *reais* de homens reais. 💪\n\nAgora é a sua vez. O protocolo completo com a sua receita personalizada está a um clique de você:",
-    cta:true, first:true
+    text:"Resultados *reais* de homens reais. 💪\n\nAgora é a sua vez. O protocolo completo com a sua receita personalizada está a um clique de você.",
+    first:true
   },{delay:1400});
+  await botSay({
+    text:"Receba sua receita personalizada e o protocolo completo diretamente no WhatsApp. ⬇️",
+    ctaWpp:true,
+    first:false
+  },{delay:900});
   setTimeout(()=>setQR([
     {label:"🛒 Garantir meu acesso!",v:"quero comprar agora"},
     {label:"💰 Ver preço",v:"quanto custa"},
@@ -479,7 +689,7 @@ async function handleUser(display,value){
   if(v==='__start_quiz__'){
     qAtivo=true; qStep=0; qResp={};
     addMsg({text:"Sim! Quero fazer o teste! 🧪",type:'user',first:true});
-    await botSay({text:"Perfeito! 🎯\n\nVou fazer *4 perguntas rápidas* para calibrar o protocolo exato para você.\n\nResponde com sinceridade para os resultados serem precisos! 💪",first:true},{delay:950});
+    await botSay({text:"Perfeito! 🎯\n\nVou fazer *5 perguntas rápidas* para calibrar o protocolo exato para você.\n\nResponde com sinceridade — cada resposta influencia diretamente a fórmula que vou calcular. 💪",first:true},{delay:950});
     await nextQ(); return;
   }
 
