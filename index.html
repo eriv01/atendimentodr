@@ -48,6 +48,13 @@ html,body{height:100%;background:#111B21;font-family:'Segoe UI','Helvetica Neue'
 .vid-wrap{position:relative;border-radius:8px;overflow:hidden;background:#000;width:100%}
 .vid-wrap video{display:block;width:100%;max-height:260px;object-fit:contain;border-radius:8px;background:#000}
 .vid-label{font-size:12px;color:var(--txt-l);margin-top:4px;text-align:center;font-style:italic}
+.vsl-overlay{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.72);color:#fff;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600;pointer-events:none;display:none;align-items:center;gap:5px;letter-spacing:.3px}
+.vsl-overlay.show{display:flex}
+.vsl-bar-wrap{width:100%;height:4px;background:rgba(255,255,255,.2);border-radius:2px;margin-top:6px;overflow:hidden}
+.vsl-bar-fill{height:100%;background:var(--g-light);border-radius:2px;width:0%;transition:width .5s linear}
+.vsl-cta{display:none;width:100%;margin-top:10px;padding:11px 16px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;border-radius:24px;font-size:14.5px;font-weight:700;cursor:pointer;text-align:center;transition:transform .1s;box-shadow:0 3px 14px rgba(37,211,102,.4)}
+.vsl-cta.show{display:block}
+.vsl-cta:active{transform:scale(.96)}
 .depo-name{font-size:12.5px;font-weight:600;color:var(--g-dark);margin-top:6px}
 .depo-stars{color:#f4c430;font-size:13px;letter-spacing:1px}
 .bimg{max-width:100%;border-radius:6px;display:block;max-height:240px;object-fit:cover;cursor:pointer}
@@ -211,6 +218,18 @@ const FALLBACKS=[`Pode me perguntar qualquer coisa sobre o *Método Bicarbonato*
 /* === STATE === */
 let qStep=0, qResp={}, qAtivo=false;
 
+/* =====================================================
+   TIMING HUMANO
+   Calcula delay baseado no tamanho do texto + jitter
+   ===================================================== */
+function humanDelay(text, base=500){
+  const len = (text||'').replace(/<[^>]*>/g,'').length;
+  // ~38ms por caractere, mín 800ms, máx 3800ms
+  const typed = Math.min(600 + len * 38, 3800);
+  const jitter = Math.floor(Math.random() * 500) - 250; // ±250ms
+  return Math.max(base, typed + jitter);
+}
+
 /* === UTILS === */
 const $=id=>document.getElementById(id);
 const msgEl=$('messages'),typEl=$('typing'),qrEl=$('qr');
@@ -238,9 +257,37 @@ function addMsg({text,type,first=false,cta=false,ctaWpp=false,video,img,file,qui
   if(video){
     const vw=document.createElement('div');vw.className='vid-wrap';
     const v=document.createElement('video');v.src=video.url;v.controls=true;v.playsInline=true;v.preload='metadata';
-    vw.appendChild(v);bub.appendChild(vw);
-    if(video.label){const l=document.createElement('div');l.className='vid-label';l.textContent=video.label;bub.appendChild(l);}
-    if(video.nome){const n=document.createElement('div');n.className='depo-name';n.textContent=video.nome;const s=document.createElement('div');s.className='depo-stars';s.textContent='★★★★★';bub.appendChild(n);bub.appendChild(s);}
+    vw.appendChild(v);
+    if(video.vsl){
+      // Overlay contador regressivo
+      const ov=document.createElement('div');ov.className='vsl-overlay';
+      const cdSpan=document.createElement('span');cdSpan.id='vsl-countdown';cdSpan.textContent='Assista: 24s';
+      ov.innerHTML='<span>👁️</span>';ov.appendChild(cdSpan);
+      vw.appendChild(ov);
+      bub.appendChild(vw);
+      // Barra de progresso
+      const bw=document.createElement('div');bw.className='vsl-bar-wrap';
+      const bf=document.createElement('div');bf.className='vsl-bar-fill';bw.appendChild(bf);bub.appendChild(bw);
+      // Botão liberado após 24s
+      const ctaV=document.createElement('button');ctaV.className='vsl-cta';ctaV.textContent='✅ Assistido! Continuar →';bub.appendChild(ctaV);
+      const REQUIRED=24;let watched=0,timer=null,unlocked=false;
+      function tick(){
+        if(unlocked)return;
+        watched=Math.min(watched+1,REQUIRED);
+        const rem=REQUIRED-watched;
+        cdSpan.textContent=rem>0?'Assista: '+rem+'s':'Liberado! ✅';
+        bf.style.width=(watched/REQUIRED*100)+'%';
+        if(watched>=REQUIRED&&!unlocked){unlocked=true;ov.classList.remove('show');ctaV.classList.add('show');scrollB();}
+      }
+      v.addEventListener('play',()=>{ov.classList.add('show');if(!timer)timer=setInterval(tick,1000);});
+      v.addEventListener('pause',()=>{clearInterval(timer);timer=null;});
+      v.addEventListener('ended',()=>{clearInterval(timer);timer=null;});
+      ctaV.addEventListener('click',()=>{if(!unlocked)return;ctaV.disabled=true;ctaV.style.opacity='.6';window._vslResolve&&window._vslResolve();});
+    } else {
+      bub.appendChild(vw);
+      if(video.label){const l=document.createElement('div');l.className='vid-label';l.textContent=video.label;bub.appendChild(l);}
+      if(video.nome){const n=document.createElement('div');n.className='depo-name';n.textContent=video.nome;const s=document.createElement('div');s.className='depo-stars';s.textContent='★★★★★';bub.appendChild(n);bub.appendChild(s);}
+    }
   }else if(img){
     const i=document.createElement('img');i.className='bimg';i.src=img;i.onclick=()=>openLb(img);bub.appendChild(i);
   }else if(file){
@@ -269,7 +316,17 @@ function addMsg({text,type,first=false,cta=false,ctaWpp=false,video,img,file,qui
   msgEl.insertBefore(wrap,typEl);scrollB();
   return wrap;
 }
-async function botSay(opts,{delay=1200,first=false}={}){showTyp();await wait(delay);hideTyp();return addMsg({...opts,type:'bot',first});}
+
+/* =====================================================
+   botSay — usa humanDelay automaticamente se delay=-1
+   ===================================================== */
+async function botSay(opts, {delay=-1, first=false}={}){
+  const d = delay === -1 ? humanDelay(opts.text||'') : delay;
+  showTyp();
+  await wait(d);
+  hideTyp();
+  return addMsg({...opts, type:'bot', first});
+}
 
 /* === QR === */
 function setQR(btns){qrEl.innerHTML='';for(const b of btns){const el=document.createElement('button');el.className='qrb';el.textContent=b.label;el.onclick=()=>{clearQR();handleUser(b.label,b.v||b.label);};qrEl.appendChild(el);}}
@@ -290,11 +347,9 @@ function buildQuizCard({q,sub,opts,step}){
   for(const o of opts){
     const btn=document.createElement('button');btn.className='qopt';btn.textContent=o;
     btn.addEventListener('click',function(){
-      // bloqueia todos do card instantaneamente
       card.querySelectorAll('.qopt').forEach(b=>{b.classList.add('off');});
       btn.classList.remove('off');
       btn.classList.add('sel');
-      // dispara próxima etapa
       quizNext(o);
     });
     oo.appendChild(btn);
@@ -322,13 +377,9 @@ function buildUrgency(items){
 }
 
 /* === QUIZ LOGIC === */
-// Chamado pelo clique no botão do card — não é async para não travar o event
 function quizNext(resp){
-  // salva resposta
   qResp[QUIZ[qStep-1].k]=resp;
-  // mostra como bolha do user
   addMsg({text:resp,type:'user',first:true});
-  // avança
   if(qStep<QUIZ.length){
     advanceQuiz();
   } else {
@@ -337,30 +388,75 @@ function quizNext(resp){
 }
 
 async function advanceQuiz(){
-  const ack=rnd(["Anotado! ✅","Entendido! 👍","Perfeito! 😊","Ok! ⚡"]);
-  await botSay({text:ack,first:true},{delay:600});
-  const q=QUIZ[qStep];qStep++;
-  await botSay({quiz:{q:q.q,sub:q.sub,opts:q.opts,step:qStep},first:true},{delay:900});
+  // Pausa curta — como se estivesse lendo antes de responder
+  const acks = ["Anotado! ✅","Entendido 👍","Ok! 😊","Perfeito ⚡","Certo! 👌"];
+  await botSay({text:rnd(acks), first:true}, {delay: 900 + Math.random()*500});
+  const q=QUIZ[qStep]; qStep++;
+  // Pausa maior antes de enviar a próxima pergunta — simula "pensando e digitando"
+  await botSay({quiz:{q:q.q,sub:q.sub,opts:q.opts,step:qStep}, first:true}, {delay: 1200 + Math.random()*600});
 }
 
 async function finalizarQuiz(){
   qAtivo=false;
-  await botSay({text:"Analisando seu perfil clínico... ⚙️",first:true},{delay:800});
-  await botSay({prog:{label:'Calculando sua fórmula exclusiva...',pct:100},first:false},{delay:1300});
-  await wait(400);
+
+  // 1. Reação imediata — curta
+  await botSay({text:"Ótimo, obrigado pelas respostas! 🙏", first:true}, {delay:900});
+
+  // 2. Pequena pausa de "processando"
+  await botSay({text:"Deixa eu analisar seu perfil aqui... ⚙️", first:false}, {delay:1400});
+
+  // 3. Barra de progresso — visual de "calculando"
+  await botSay({prog:{label:'Calculando sua fórmula exclusiva...',pct:100}, first:false}, {delay:2200});
+  await wait(600);
+
+  // 4. Resultado da análise (texto médio — ~2s de typing)
   const rec=calcReceita(qResp);
   const copy=gerarCopy(qResp,rec);
-  await botSay({text:copy,first:true},{delay:1100});
-  await botSay({recipe:rec,first:false},{delay:1200});
-  await wait(300);
-  await botSay({text:`Essa fórmula é *sua*. Calculada com base nas suas respostas — não é genérica. 🎯\n\nMas a receita sozinha é só o começo. O que transforma resultado em resultado *consistente* é o protocolo completo:\n\n📋 *Horários exatos* de cada dose\n🔥 *Potencializadores* que multiplicam o efeito x3\n🚫 *O que NUNCA misturar* — isso pode anular tudo\n📈 Ajustes progressivos conforme você avança`,first:true},{delay:1500});
-  await botSay({urgency:[{icon:'📦',text:'Protocolo completo passo a passo — do dia 1 ao dia 30'},{icon:'⏰',text:'Horários exatos para cada dose da sua receita'},{icon:'🔒',text:'Acesso vitalício + atualizações gratuitas'},{icon:'🛡️',text:'Garantia total de 7 dias — sem perguntas'},{icon:'💊',text:'Bônus: Guia de potencializadores naturais'}],first:false},{delay:1200});
-  await botSay({text:`Homens com o seu perfil sentiram os primeiros resultados em *${rec.prazo}*. 🔥\n\nAgora veja o que eles dizem com as próprias palavras 👇`,first:true},{delay:1300});
+  await botSay({text:copy, first:true});
+
+  // 5. A receita em si — pausa dramática antes de revelar
+  await wait(400);
+  await botSay({recipe:rec, first:false}, {delay:1800});
+
+  // 6. Explicação do que falta — mensagem longa, delay automático
+  await botSay({
+    text:`Essa fórmula é *sua*. Calculada com base nas suas respostas — não é genérica. 🎯\n\nMas a receita sozinha é só o começo. O que transforma resultado em resultado *consistente* é o protocolo completo:\n\n📋 *Horários exatos* de cada dose\n🔥 *Potencializadores* que multiplicam o efeito x3\n🚫 *O que NUNCA misturar* — isso pode anular tudo\n📈 Ajustes progressivos conforme você avança`,
+    first:true
+  });
+
+  // 7. Card de urgência — pausa natural antes
+  await botSay({
+    urgency:[
+      {icon:'📦',text:'Protocolo completo passo a passo — do dia 1 ao dia 30'},
+      {icon:'⏰',text:'Horários exatos para cada dose da sua receita'},
+      {icon:'🔒',text:'Acesso vitalício + atualizações gratuitas'},
+      {icon:'🛡️',text:'Garantia total de 7 dias — sem perguntas'},
+      {icon:'💊',text:'Bônus: Guia de potencializadores naturais'}
+    ],
+    first:false
+  }, {delay:1600});
+
+  // 8. Gancho para os depoimentos — pausa natural
+  await botSay({
+    text:`Homens com o seu perfil sentiram os primeiros resultados em *${rec.prazo}*. 🔥\n\nOlha o que eles falam com as próprias palavras 👇`,
+    first:true
+  }, {delay:2000});
+
+  // 9. Depoimentos em vídeo — gap menor entre eles, parece quem está mandando de uma vez
   for(let i=0;i<C.depos.length;i++){
-    await botSay({video:{url:C.depos[i].url,nome:C.depos[i].nome},first:i===0},{delay:i===0?900:500});
+    await botSay(
+      {video:{url:C.depos[i].url,nome:C.depos[i].nome}, first:i===0},
+      {delay: i===0 ? 1000 : 650 + Math.random()*300}
+    );
   }
-  await botSay({text:`Resultados *reais*, de homens reais — com histórias parecidas com a sua. 💪\n\nSua receita personalizada já está pronta. Garanta o protocolo completo para aplicá-la do jeito certo.`,first:true},{delay:1500});
-  await botSay({text:`Clique abaixo e receba sua receita completa diretamente no WhatsApp — com o protocolo passo a passo para começar *hoje*. ⬇️`,ctaWpp:true,first:true},{delay:1100});
+
+  // 10. Fechamento + CTA WhatsApp
+  await botSay({
+    text:`Resultados *reais*, de homens reais. 💪\n\nSua receita já está pronta. Clica abaixo e eu te mando o protocolo completo direto no seu WhatsApp — com o passo a passo para começar *hoje*. ⬇️`,
+    ctaWpp:true,
+    first:true
+  }, {delay:1800});
+
   setQR([
     {label:"🛒 Garantir acesso completo!",v:"quero comprar agora"},
     {label:"💳 Formas de pagamento",v:"formas de pagamento"},
@@ -371,11 +467,14 @@ async function finalizarQuiz(){
 
 /* === DEPOIMENTOS (manual) === */
 async function mostrarDepos(){
-  await botSay({text:"Selecionei depoimentos *reais* de homens que já fizeram o protocolo. 👇",first:true},{delay:1000});
+  await botSay({text:"Selecionei aqui alguns depoimentos *reais* de quem já fez o protocolo 👇", first:true}, {delay:1200});
   for(let i=0;i<C.depos.length;i++){
-    await botSay({video:{url:C.depos[i].url,nome:C.depos[i].nome},first:i===0},{delay:i===0?800:400});
+    await botSay(
+      {video:{url:C.depos[i].url,nome:C.depos[i].nome}, first:i===0},
+      {delay: i===0 ? 900 : 600 + Math.random()*300}
+    );
   }
-  await botSay({text:"Agora é a sua vez. 💪",ctaWpp:true,first:true},{delay:1200});
+  await botSay({text:"Agora é a sua vez. 💪", ctaWpp:true, first:true}, {delay:1200});
   setQR([{label:"🛒 Garantir meu acesso!",v:"quero comprar agora"},{label:"💰 Ver preço",v:"quanto custa"},{label:"🛡️ Garantia",v:"tem garantia"}]);
 }
 
@@ -401,19 +500,45 @@ async function handleUser(display,value){
   setQR([{label:"💰 Quanto custa?",v:"quanto custa"},{label:"✅ Tem garantia?",v:"tem garantia"},{label:"🛒 Quero comprar!",v:"quero comprar agora"},{label:"💬 Depoimentos",v:"__depos__"}]);
 }
 
-/* === WELCOME === */
+/* =====================================================
+   WELCOME — fragmentado em mensagens curtas
+   como uma pessoa real que digita no zap
+   ===================================================== */
 async function welcome(){
+  // Pausa inicial — parece que a pessoa acaba de abrir o chat
+  await wait(800);
+
+  // Mensagem 1 — curtíssima, como um "oi" de verdade
+  await botSay({text:"Olá! 👋", first:true}, {delay:700});
+
+  // Mensagem 2 — apresentação, separada da saudação
+  await botSay({text:`Sou o *${C.nome}*. 😊`, first:false}, {delay:900});
+
+  // Mensagem 3 — contexto, antes do vídeo
+  await botSay({text:"Você chegou no lugar certo.", first:false}, {delay:900});
+
+  // Mensagem 4 — chamada para o vídeo (mensagem separada como pessoa faz no zap)
+  await botSay({text:"Antes de qualquer coisa, assiste esse vídeo aqui 👇", first:false}, {delay:1100});
+
+  // Vídeo VSL com bloqueio — fluxo para até o cara apertar "Continuar"
+  await botSay({video:{url:C.vsl, vsl:true}, first:false}, {delay:800});
+  // Aguarda o clique no botão liberado após 24s
+  await new Promise(res=>{ window._vslResolve=res; });
   await wait(600);
-  await botSay({text:"Olá! 👋 Seja bem-vindo!",first:true},{delay:700});
-  await botSay({text:`Sou o *${C.nome}*. 😊\n\nVocê chegou até aqui por um motivo — e eu tenho o que você está procurando.`,first:true},{delay:1100});
-  await botSay({text:"Antes de tudo, assiste a este vídeo. 👇",first:true},{delay:900});
-  await botSay({video:{url:C.vsl,label:"▶ Assista antes de continuar"},first:false},{delay:900});
-  await wait(1200);
-  await botSay({text:"Mais de *4.200 homens* já fizeram o protocolo. 🔥\n\nVou fazer *5 perguntas rápidas* para calcular a receita com as doses exatas para o *seu* perfil.\n\nResponda com sinceridade — cada resposta influencia diretamente a sua fórmula. 💪",first:true},{delay:1400});
-  // inicia quiz automaticamente
+
+  // Mensagem de transição — cria curiosidade antes do quiz
+  await botSay({text:"Mais de *4.200 homens* já fizeram esse protocolo. 🔥", first:true}, {delay:1200});
+
+  await botSay({text:"Mas a dose certa varia de pessoa pra pessoa.", first:false}, {delay:1100});
+
+  await botSay({text:"Vou te fazer *5 perguntas rápidas* pra calcular a fórmula ideal pro *seu* perfil. 💊", first:false}, {delay:1400});
+
+  await botSay({text:"Responde com sinceridade — cada resposta muda a receita. 👇", first:false}, {delay:1000});
+
+  // Inicia quiz
   qAtivo=true; qStep=0; qResp={};
   const q=QUIZ[qStep]; qStep++;
-  await botSay({quiz:{q:q.q,sub:q.sub,opts:q.opts,step:qStep},first:true},{delay:1000});
+  await botSay({quiz:{q:q.q,sub:q.sub,opts:q.opts,step:qStep}, first:true}, {delay:1200});
 }
 
 /* === INPUT === */
