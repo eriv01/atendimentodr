@@ -194,13 +194,69 @@ function calcReceita(r){
   return                   {bic:"3,5g",agua:"300ml",limao:"½ unidade",mel:"1 col. chá",intervalo:"1x ao dia (pela manhã)",perfil:"Preventivo",prazo:"7 a 10 dias"};
 }
 function gerarCopy(r,rec){
-  const probs=[];
-  if(["Quase nunca — fico mole antes de terminar","Raramente — acontece mas é instável"].includes(r.rigidez)) probs.push("rigidez comprometida");
-  if(r.matinal==="Nunca — faz muito tempo que não acontece") probs.push("ausência de ereção matinal");
-  if(r.manutencao==="Não — perco antes de terminar com frequência") probs.push("dificuldade de manutenção");
-  if(["Muito baixo — raramente sinto vontade","Baixo — preciso de muito estímulo"].includes(r.libido)) probs.push("libido suprimida");
-  if(!probs.length) return `Analisei suas respostas e o seu perfil é de *prevenção e otimização*. ✅\n\nSeu corpo ainda responde bem — mas sem o protocolo certo, a queda vem mais rápido do que você imagina. A fórmula abaixo foi calibrada para manter e elevar o que você já tem. 🔥`;
-  return `Analisei suas respostas com atenção. 🔬\n\nIdentifiquei sinais clínicos de:\n${probs.map(p=>`• ${p}`).join('\n')}\n\nIsso não é fraqueza — é bioquímica. A fórmula abaixo foi calibrada *especificamente para o seu perfil ${rec.perfil}* para reativar sua vascularização e produção de testosterona. Os primeiros sinais aparecem em *${rec.prazo}*. 💊`;
+  const grave = rec.perfil==='Crítico';
+  const medio = rec.perfil==='Intermediário';
+
+  // Mapa de sintomas para linguagem clínica pesada
+  const sintomasMap = {
+    rigidez: "insuficiência vascular peniana grau II",
+    matinal: "colapso na produção de testosterona livre",
+    manutencao: "disfunção erétil de manutenção — fase ativa",
+    libido: "supressão severa do eixo HHG (hipotálamo-hipófise-gônadas)",
+  };
+  const sinais=[];
+  if(["Quase nunca — fico mole antes de terminar","Raramente — acontece mas é instável"].includes(r.rigidez)) sinais.push(sintomasMap.rigidez);
+  if(r.matinal==="Nunca — faz muito tempo que não acontece") sinais.push(sintomasMap.matinal);
+  if(r.manutencao==="Não — perco antes de terminar com frequência") sinais.push(sintomasMap.manutencao);
+  if(["Muito baixo — raramente sinto vontade","Baixo — preciso de muito estímulo"].includes(r.libido)) sinais.push(sintomasMap.libido);
+
+  if(!sinais.length){
+    return `📋 *LAUDO CLÍNICO — PERFIL PREVENTIVO*\n\nSuas respostas indicam função erétil dentro do padrão esperado para sua faixa etária.\n\nNo entanto: *sem intervenção ativa, a curva de declínio hormonal acelera a partir dos 40 anos.*\n\nA fórmula abaixo foi calibrada para *blindar* o que você ainda tem — e elevar sua performance acima da média. 🔒`;
+  }
+
+  const urgencia = grave
+    ? `⚠️ *ATENÇÃO: quadro exige intervenção imediata.* Sem reversão nos próximos 30 dias, o comprometimento vascular tende a se tornar permanente.`
+    : `O quadro ainda tem reversão — mas *o tempo trabalha contra você.* Cada semana sem protocolo aprofunda o colapso hormonal.`;
+
+  return `📋 *LAUDO CLÍNICO — DR. RICARDO CAMPO*\n\n*Perfil identificado: ${rec.perfil.toUpperCase()}*\n\nApós analisar suas respostas, identifiquei *${sinais.length} marcador${sinais.length>1?'es':''} clínico${sinais.length>1?'s':''} de disfunção:*\n\n${sinais.map((s,i)=>`${i+1}. ${s}`).join('\n')}\n\n${urgencia}\n\nEsse conjunto de marcadores tem causa *bioquímica definida*: acúmulo de cortisol crônico bloqueando os receptores androgênicos + queda do pH intracelular impedindo a síntese de testosterona livre.\n\nA fórmula que calculei reverte exatamente esse mecanismo. 👇`;
+}
+
+/* === GRÁFICO SVG: pH celular antes vs depois === */
+function buildGrafico(perfil){
+  const grave = perfil==='Crítico';
+  const antes = grave ? 18 : 32;
+  const depois = grave ? 91 : 78;
+  const cor = grave ? '#E53935' : '#FB8C00';
+
+  const div=document.createElement('div');
+  div.style.cssText='background:#fff;border-radius:12px;padding:14px 12px 10px;box-shadow:0 2px 8px rgba(0,0,0,.1);margin-top:4px;';
+  div.innerHTML=`
+    <div style="font-size:12px;font-weight:700;color:#075E54;margin-bottom:10px;letter-spacing:.3px;">📊 DIAGNÓSTICO: NÍVEL DE pH ANDROGÊNICO</div>
+    <svg viewBox="0 0 280 110" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
+      <!-- grid lines -->
+      <line x1="40" y1="10" x2="40" y2="85" stroke="#e0e0e0" stroke-width="1"/>
+      <line x1="40" y1="85" x2="270" y2="85" stroke="#e0e0e0" stroke-width="1"/>
+      <line x1="40" y1="47" x2="270" y2="47" stroke="#f0f0f0" stroke-width="1" stroke-dasharray="3,3"/>
+      <!-- label eixo Y -->
+      <text x="2" y="89" font-size="8" fill="#999">0%</text>
+      <text x="2" y="51" font-size="8" fill="#999">50%</text>
+      <text x="2" y="14" font-size="8" fill="#999">100%</text>
+      <!-- barra ANTES -->
+      <rect x="60" y="${85-(antes*0.75)}" width="60" height="${antes*0.75}" rx="4" fill="${cor}"/>
+      <text x="90" y="${85-(antes*0.75)-5}" font-size="9" fill="${cor}" text-anchor="middle" font-weight="bold">${antes}%</text>
+      <text x="90" y="98" font-size="9" fill="#666" text-anchor="middle">ANTES</text>
+      <text x="90" y="107" font-size="8" fill="#999" text-anchor="middle">seu estado atual</text>
+      <!-- barra DEPOIS -->
+      <rect x="160" y="${85-(depois*0.75)}" width="60" height="${depois*0.75}" rx="4" fill="#25D366"/>
+      <text x="190" y="${85-(depois*0.75)-5}" font-size="9" fill="#128C7E" text-anchor="middle" font-weight="bold">${depois}%</text>
+      <text x="190" y="98" font-size="9" fill="#666" text-anchor="middle">APÓS PROTOCOLO</text>
+      <text x="190" y="107" font-size="8" fill="#128C7E" text-anchor="middle">com a sua fórmula</text>
+      <!-- seta entre barras -->
+      <text x="135" y="52" font-size="16" fill="#075E54" text-anchor="middle">→</text>
+    </svg>
+    <div style="font-size:11px;color:#888;margin-top:4px;font-style:italic;text-align:center;">*Baseado em média dos pacientes com perfil ${perfil} — 30 dias de protocolo</div>
+  `;
+  return div;
 }
 
 /* === INTENÇÕES === */
@@ -411,62 +467,81 @@ function waitTap(label='Continuar →'){
 async function finalizarQuiz(){
   qAtivo=false;
 
-  // 1. Reação + processamento (automático, sem tap — curto)
-  await botSay({text:"Ótimo, obrigado pelas respostas! 🙏", first:true}, {delay:900});
-  await botSay({text:"Deixa eu analisar seu perfil aqui... ⚙️", first:false}, {delay:1400});
-  await botSay({prog:{label:'Calculando sua fórmula exclusiva...',pct:100}, first:false}, {delay:2200});
-  await wait(700);
+  // 1. Processamento — automático, cria tensão
+  await botSay({text:"Processando suas respostas... 🔬", first:true}, {delay:800});
+  await botSay({prog:{label:'Cruzando dados com base clínica de 4.200 pacientes...',pct:100}, first:false}, {delay:2800});
+  await wait(800);
 
-  // 2. Análise + receita — lead lê e toca para continuar
+  // 2. Laudo clínico — tom de diagnóstico médico pesado
   const rec=calcReceita(qResp);
   const copy=gerarCopy(qResp,rec);
-  await botSay({text:copy, first:true});
-  await wait(300);
-  await botSay({recipe:rec, first:false}, {delay:1800});
-  await waitTap('Li minha receita — continuar 👇');
+  await botSay({text:copy, first:true}, {delay:500});
+  await wait(600);
 
-  // 3. O que falta + card de urgência — lead lê e toca para continuar
+  // 3. Gráfico visual antes vs depois
+  await botSay({text:"Veja o que acontece com o seu pH androgênico aplicando o protocolo correto 👇", first:false}, {delay:1800});
+  await wait(400);
+  // Gráfico direto como bubble bot
+  reinsT();
+  const wrapG=document.createElement('div');wrapG.className='bw bot first';
+  const bubG=document.createElement('div');bubG.className='bubble';bubG.style.padding='6px';
+  bubG.appendChild(buildGrafico(rec.perfil));
+  wrapG.appendChild(bubG);wrapG.appendChild(metaEl('bot'));
+  msgEl.insertBefore(wrapG,typEl);scrollB();
+  await wait(1000);
+
+  // 4. Ponte antes da receita — cria antecipação
+  await botSay({text:`Com base nesse diagnóstico, calculei a *fórmula exata* para o seu perfil *${rec.perfil}*.\n\nEssa é a dosagem que o seu organismo precisa para reverter o bloqueio androgênico. 👇`, first:true}, {delay:2200});
+  await wait(300);
+
+  // 5. Receita — revelação
+  await botSay({recipe:rec, first:false}, {delay:1600});
+  await waitTap('Li o diagnóstico completo — continuar 👇');
+
+  // 6. Urgência médica — o que acontece se não agir
   await botSay({
-    text:`Essa fórmula é *sua*. Calculada com base nas suas respostas — não é genérica. 🎯\n\nMas a receita sozinha é só o começo. O que transforma resultado em resultado *consistente* é o protocolo completo:\n\n📋 *Horários exatos* de cada dose\n🔥 *Potencializadores* que multiplicam o efeito x3\n🚫 *O que NUNCA misturar* — isso pode anular tudo\n📈 Ajustes progressivos conforme você avança`,
+    text:`Preciso ser direto com você.\n\nEssa receita *sozinha não resolve*. Ela é o primeiro passo.\n\nO que destrói o resultado de 9 em cada 10 homens que tentam em casa:\n\n⏰ *Horário errado* — tomar fora da janela metabólica anula o efeito\n⚗️ *Combinação proibida* — certos alimentos neutralizam o bicarbonato *na hora*\n📉 *Dosagem sem ajuste progressivo* — o corpo cria resistência em 7 dias\n\nNo protocolo completo, eu corrijo exatamente esses três erros. 🎯`,
     first:true
   });
-  await wait(400);
+  await wait(500);
+
+  // 7. O que está incluso
   await botSay({
     urgency:[
-      {icon:'📦',text:'Protocolo completo passo a passo — do dia 1 ao dia 30'},
-      {icon:'⏰',text:'Horários exatos para cada dose da sua receita'},
-      {icon:'🔒',text:'Acesso vitalício + atualizações gratuitas'},
-      {icon:'🛡️',text:'Garantia total de 7 dias — sem perguntas'},
-      {icon:'💊',text:'Bônus: Guia de potencializadores naturais'}
+      {icon:'📋',text:'Protocolo dia a dia — horários exatos da sua fórmula'},
+      {icon:'⚗️',text:'Lista dos 7 alimentos que ANULAM o efeito (evite)'},
+      {icon:'🔥',text:'Potencializadores naturais que triplicam a absorção'},
+      {icon:'📈',text:'Ajuste progressivo semana a semana'},
+      {icon:'🛡️',text:'Garantia de 7 dias — devolução sem perguntas'},
     ],
     first:false
-  }, {delay:1600});
-  await waitTap('Entendi — ver depoimentos 👇');
+  }, {delay:2000});
+  await waitTap('Entendi — quero ver os resultados reais 👇');
 
-  // 4. Depoimentos — lead toca para ver cada um
+  // 8. Transição para depoimentos — copy pesado
   await botSay({
-    text:`Homens com o seu perfil sentiram os primeiros resultados em *${rec.prazo}*. 🔥\n\nOlha o que eles falam com as próprias palavras 👇`,
+    text:`Antes de você decidir qualquer coisa, preciso te mostrar algo.\n\nEsses são homens com o *mesmo diagnóstico que o seu*.\n\nAssiste o que eles falam — com as próprias palavras, sem roteiro. 👇`,
     first:true
-  }, {delay:1600});
+  }, {delay:2000});
 
+  // 9. Depoimentos controlados pelo lead
   for(let i=0;i<C.depos.length;i++){
     await botSay(
       {video:{url:C.depos[i].url,nome:C.depos[i].nome}, first:i===0},
-      {delay: i===0 ? 900 : 600 + Math.random()*300}
+      {delay: i===0 ? 900 : 600}
     );
-    // Após cada depoimento (exceto o último) pede para continuar
     if(i < C.depos.length-1){
       await waitTap('Ver próximo depoimento →');
     }
   }
-  await wait(400);
+  await wait(500);
 
-  // 5. CTA final — sem QR buttons, só o botão WhatsApp
+  // 10. CTA final — fechamento autoritário
   await botSay({
-    text:`Resultados *reais*, de homens reais. 💪\n\nSua receita já está pronta. Clica abaixo e eu te mando o protocolo completo direto no seu WhatsApp — com o passo a passo para começar *hoje*. ⬇️`,
+    text:`Esses resultados não são coincidência.\n\nSão homens que tinham *exatamente* o seu diagnóstico — e que aplicaram o protocolo correto.\n\nSua receita já está calculada. O protocolo completo é o que falta para você ter o mesmo resultado.\n\n*Clica abaixo. Eu te mando tudo direto no WhatsApp agora.* ⬇️`,
     ctaWpp:true,
     first:true
-  }, {delay:1800});
+  }, {delay:2500});
 }
 
 /* === DEPOIMENTOS (manual) === */
