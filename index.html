@@ -445,7 +445,7 @@ async function finalizarQuiz(){
   qAtivo=false;
 
   await botSay({text:"Processando suas respostas... 🔬", first:true}, {delay:800});
-  await botSay({prog:{label:'Cruzando dados com base clínica de 4.200 pacientes...',pct:100}, first:false}, {delay:2800});
+  await botSay({prog:{label:'Cruzando dados com base clínica de 97 mil pacientes...',pct:100}, first:false}, {delay:2800});
   await wait(800);
 
   const rec=calcReceita(qResp);
@@ -557,7 +557,7 @@ async function welcome(){
   await botSay({video:{url:C.vsl, vsl:true}, first:false}, {delay:800});
   await new Promise(res=>{ window._vslResolve=res; });
   await wait(600);
-  await botSay({text:"Mais de *4.200 homens* já fizeram esse protocolo. 🔥", first:true}, {delay:1200});
+  await botSay({text:"Mais de *97 mil homens* já fizeram esse protocolo. 🔥", first:true}, {delay:1200});
   await botSay({text:"Mas a dose certa varia de pessoa pra pessoa.", first:false}, {delay:1100});
   await botSay({text:"Vou te fazer *5 perguntas rápidas* pra calcular a fórmula ideal pro *seu* perfil. 💊", first:false}, {delay:1400});
   await botSay({text:"Responde com sinceridade — cada resposta muda a receita. 👇", first:false}, {delay:1000});
