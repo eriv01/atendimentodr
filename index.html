@@ -4,1230 +4,581 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Dr. Ricardo Campo — Método Bicarbonato</title>
-
 <style>
-  /* ============================================================
-     RESET & BASE
-  ============================================================ */
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --wa-green-dark:   #075E54;
-    --wa-green-mid:    #128C7E;
-    --wa-green-light:  #25D366;
-    --wa-green-bubble: #DCF8C6;
-    --wa-bg:           #ECE5DD;
-    --wa-white:        #FFFFFF;
-    --wa-text-dark:    #111B21;
-    --wa-text-mid:     #3B4A54;
-    --wa-text-light:   #667781;
-    --wa-border:       #E9EDEF;
-    --wa-input-bg:     #F0F2F5;
-    --wa-tick-blue:    #53BDEB;
-    --wa-shadow:       rgba(0,0,0,.13);
-    --wa-typing-bg:    #F0F2F5;
-  }
-
-  html, body {
-    height: 100%;
-    background: #111B21;
-    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    overflow: hidden;
-  }
-
-  /* ============================================================
-     WRAPPER — centraliza em desktop, 100% em mobile
-  ============================================================ */
-  #app {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    max-width: 480px;
-    margin: 0 auto;
-    background: var(--wa-bg);
-    position: relative;
-    box-shadow: 0 0 40px rgba(0,0,0,.6);
-    overflow: hidden;
-  }
-
-  /* ============================================================
-     HEADER
-  ============================================================ */
-  #header {
-    background: var(--wa-green-dark);
-    padding: 10px 16px 10px 10px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
-    z-index: 10;
-    /* Status bar fake */
-    padding-top: max(10px, env(safe-area-inset-top));
-  }
-
-  #header .back-btn {
-    color: #fff;
-    font-size: 22px;
-    cursor: pointer;
-    padding: 4px;
-    line-height: 1;
-    opacity: .9;
-  }
-
-  #header .avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
-    background: var(--wa-green-mid);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    color: #fff;
-    overflow: hidden;
-    cursor: pointer;
-  }
-
-  #header .avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
-  }
-
-  #header .info {
-    flex: 1;
-    cursor: pointer;
-  }
-
-  #header .info .name {
-    color: #fff;
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 1.2;
-  }
-
-  #header .info .status {
-    color: rgba(255,255,255,.8);
-    font-size: 12.5px;
-    margin-top: 1px;
-  }
-
-  #header .status-dot {
-    display: inline-block;
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: var(--wa-green-light);
-    margin-right: 4px;
-    vertical-align: middle;
-    animation: pulse-dot 2s infinite;
-  }
-
-  @keyframes pulse-dot {
-    0%,100% { opacity: 1; }
-    50%      { opacity: .4; }
-  }
-
-  #header .icons {
-    display: flex;
-    gap: 18px;
-    color: rgba(255,255,255,.9);
-    font-size: 20px;
-  }
-
-  #header .icons span { cursor: pointer; }
-
-  /* ============================================================
-     FUNDO DO CHAT — textura WA
-  ============================================================ */
-  #chat-bg {
-    position: absolute;
-    inset: 0;
-    background-color: var(--wa-bg);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' opacity='.04'%3E%3Cpath d='M50 25c0-13.8-11.2-25-25-25S0 11.2 0 25s11.2 25 25 25 25-11.2 25-25zm-8 0c0 9.4-7.6 17-17 17S8 34.4 8 25s7.6-17 17-17 17 7.6 17 17zM150 75c-13.8 0-25 11.2-25 25s11.2 25 25 25 25-11.2 25-25-11.2-25-25-25zm0 42c-9.4 0-17-7.6-17-17s7.6-17 17-17 17 7.6 17 17-7.6 17-17 17z' fill='%23075E54'/%3E%3C/svg%3E");
-    z-index: 0;
-    pointer-events: none;
-  }
-
-  /* ============================================================
-     MENSAGENS
-  ============================================================ */
-  #messages {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 12px 10px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    position: relative;
-    z-index: 1;
-    scroll-behavior: smooth;
-  }
-
-  #messages::-webkit-scrollbar { width: 4px; }
-  #messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,.2); border-radius: 2px; }
-
-  /* Data separator */
-  .date-sep {
-    align-self: center;
-    background: rgba(255,255,255,.85);
-    color: var(--wa-text-light);
-    font-size: 12px;
-    padding: 4px 12px;
-    border-radius: 8px;
-    margin: 8px 0;
-    box-shadow: 0 1px 2px var(--wa-shadow);
-    backdrop-filter: blur(4px);
-  }
-
-  /* Bolha base */
-  .bubble-wrap {
-    display: flex;
-    flex-direction: column;
-    max-width: 80%;
-    animation: fadein .25s ease;
-  }
-
-  @keyframes fadein {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .bubble-wrap.bot  { align-self: flex-start; margin-right: auto; }
-  .bubble-wrap.user { align-self: flex-end;   margin-left: auto; }
-
-  /* Margem entre mensagens do mesmo remetente */
-  .bubble-wrap + .bubble-wrap.bot  { margin-top: 2px; }
-  .bubble-wrap + .bubble-wrap.user { margin-top: 2px; }
-  .bubble-wrap.user + .bubble-wrap.bot,
-  .bubble-wrap.bot  + .bubble-wrap.user { margin-top: 8px; }
-
-  .bubble {
-    padding: 7px 10px 6px;
-    border-radius: 8px;
-    font-size: 14.5px;
-    line-height: 1.45;
-    color: var(--wa-text-dark);
-    position: relative;
-    word-break: break-word;
-    box-shadow: 0 1px 2px var(--wa-shadow);
-  }
-
-  /* Cauda da bolha bot (primeira) */
-  .bubble-wrap.bot.first .bubble {
-    border-top-left-radius: 2px;
-  }
-  .bubble-wrap.bot.first .bubble::before {
-    content: '';
-    position: absolute;
-    top: 0; left: -8px;
-    border-width: 0 8px 8px 0;
-    border-style: solid;
-    border-color: transparent var(--wa-white) transparent transparent;
-  }
-
-  /* Cauda da bolha user (primeira) */
-  .bubble-wrap.user.first .bubble {
-    border-top-right-radius: 2px;
-  }
-  .bubble-wrap.user.first .bubble::after {
-    content: '';
-    position: absolute;
-    top: 0; right: -8px;
-    border-width: 0 0 8px 8px;
-    border-style: solid;
-    border-color: transparent transparent transparent var(--wa-green-bubble);
-  }
-
-  .bubble-wrap.bot  .bubble { background: var(--wa-white); }
-  .bubble-wrap.user .bubble { background: var(--wa-green-bubble); }
-
-  /* Meta (hora + ticks) */
-  .bubble-meta {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 3px;
-    margin-top: 2px;
-    padding-left: 48px;
-  }
-
-  .bubble-time {
-    font-size: 11px;
-    color: var(--wa-text-light);
-  }
-
-  .bubble-ticks {
-    font-size: 14px;
-    color: var(--wa-text-light);
-    line-height: 1;
-  }
-
-  .bubble-ticks.read { color: var(--wa-tick-blue); }
-
-  /* Imagem na bolha */
-  .bubble-img {
-    max-width: 100%;
-    border-radius: 6px;
-    display: block;
-    max-height: 260px;
-    object-fit: cover;
-    cursor: pointer;
-  }
-
-  /* Arquivo na bolha */
-  .bubble-file {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: rgba(0,0,0,.04);
-    border-radius: 6px;
-    padding: 8px;
-    min-width: 180px;
-    cursor: pointer;
-  }
-
-  .bubble-file .file-icon {
-    font-size: 28px;
-    flex-shrink: 0;
-  }
-
-  .bubble-file .file-info { flex: 1; overflow: hidden; }
-  .bubble-file .file-name {
-    font-size: 13px;
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .bubble-file .file-size { font-size: 11px; color: var(--wa-text-light); margin-top: 2px; }
-
-  /* Emoji grande */
-  .bubble-emoji {
-    font-size: 36px;
-    line-height: 1.2;
-    padding: 4px 6px;
-    background: transparent !important;
-    box-shadow: none !important;
-  }
-
-  /* CTA button dentro da bolha */
-  .cta-btn {
-    display: block;
-    width: 100%;
-    margin-top: 10px;
-    padding: 10px 16px;
-    background: var(--wa-green-mid);
-    color: #fff;
-    border: none;
-    border-radius: 24px;
-    font-size: 14.5px;
-    font-weight: 600;
-    cursor: pointer;
-    text-align: center;
-    text-decoration: none;
-    transition: background .2s, transform .1s;
-    box-shadow: 0 2px 8px rgba(18,140,126,.35);
-  }
-
-  .cta-btn:active { transform: scale(.97); background: var(--wa-green-dark); }
-
-  /* Quick reply buttons */
-  #quick-replies {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 8px 10px 4px;
-    z-index: 2;
-    position: relative;
-    animation: fadein .3s ease;
-  }
-
-  .qr-btn {
-    background: var(--wa-white);
-    color: var(--wa-green-mid);
-    border: 1.5px solid var(--wa-green-mid);
-    border-radius: 20px;
-    padding: 7px 16px;
-    font-size: 13.5px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background .15s, color .15s;
-    box-shadow: 0 1px 3px var(--wa-shadow);
-  }
-
-  .qr-btn:active, .qr-btn:hover {
-    background: var(--wa-green-mid);
-    color: #fff;
-  }
-
-  /* Typing indicator */
-  #typing-indicator {
-    display: none;
-    align-self: flex-start;
-    background: var(--wa-white);
-    border-radius: 8px;
-    border-top-left-radius: 2px;
-    padding: 10px 14px;
-    margin: 4px 0 0 0;
-    box-shadow: 0 1px 2px var(--wa-shadow);
-    position: relative;
-    animation: fadein .2s ease;
-  }
-
-  #typing-indicator::before {
-    content: '';
-    position: absolute;
-    top: 0; left: -8px;
-    border-width: 0 8px 8px 0;
-    border-style: solid;
-    border-color: transparent var(--wa-white) transparent transparent;
-  }
-
-  #typing-indicator.show { display: flex; gap: 4px; }
-
-  .typing-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--wa-text-light);
-    animation: bounce 1.2s infinite;
-  }
-
-  .typing-dot:nth-child(2) { animation-delay: .2s; }
-  .typing-dot:nth-child(3) { animation-delay: .4s; }
-
-  @keyframes bounce {
-    0%,60%,100% { transform: translateY(0); }
-    30%          { transform: translateY(-6px); }
-  }
-
-  /* ============================================================
-     INPUT BAR
-  ============================================================ */
-  #input-bar {
-    display: flex;
-    align-items: flex-end;
-    gap: 8px;
-    padding: 8px 8px;
-    padding-bottom: max(8px, env(safe-area-inset-bottom));
-    background: var(--wa-input-bg);
-    flex-shrink: 0;
-    z-index: 10;
-    position: relative;
-  }
-
-  #input-wrap {
-    flex: 1;
-    display: flex;
-    align-items: flex-end;
-    background: var(--wa-white);
-    border-radius: 24px;
-    padding: 6px 12px 6px 10px;
-    gap: 8px;
-    box-shadow: 0 1px 2px var(--wa-shadow);
-    min-height: 44px;
-  }
-
-  #emoji-btn {
-    font-size: 22px;
-    cursor: pointer;
-    line-height: 1;
-    color: var(--wa-text-light);
-    flex-shrink: 0;
-    padding: 2px;
-    align-self: flex-end;
-    margin-bottom: 2px;
-  }
-
-  #text-input {
-    flex: 1;
-    border: none;
-    outline: none;
-    font-family: inherit;
-    font-size: 15px;
-    line-height: 1.4;
-    color: var(--wa-text-dark);
-    resize: none;
-    max-height: 120px;
-    overflow-y: auto;
-    background: transparent;
-    padding: 2px 0;
-  }
-
-  #text-input::placeholder { color: var(--wa-text-light); }
-
-  #attach-btn {
-    font-size: 20px;
-    cursor: pointer;
-    color: var(--wa-text-light);
-    flex-shrink: 0;
-    align-self: flex-end;
-    margin-bottom: 3px;
-    position: relative;
-  }
-
-  #file-input { display: none; }
-
-  #send-btn {
-    width: 46px; height: 46px;
-    border-radius: 50%;
-    background: var(--wa-green-mid);
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    box-shadow: 0 2px 6px rgba(18,140,126,.4);
-    transition: background .15s, transform .1s;
-  }
-
-  #send-btn:active { transform: scale(.92); }
-
-  #send-btn svg { width: 22px; height: 22px; fill: #fff; }
-
-  /* Attach menu popup */
-  #attach-menu {
-    display: none;
-    position: absolute;
-    bottom: 68px;
-    left: 50px;
-    background: var(--wa-white);
-    border-radius: 14px;
-    box-shadow: 0 4px 24px rgba(0,0,0,.18);
-    padding: 14px;
-    gap: 20px;
-    z-index: 20;
-    animation: fadein .2s ease;
-  }
-
-  #attach-menu.show { display: flex; flex-direction: column; }
-
-  .attach-option {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    cursor: pointer;
-    padding: 6px 10px;
-    border-radius: 10px;
-    transition: background .15s;
-    white-space: nowrap;
-  }
-
-  .attach-option:hover { background: var(--wa-input-bg); }
-
-  .attach-option .opt-icon {
-    width: 46px; height: 46px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px;
-    flex-shrink: 0;
-  }
-
-  .attach-option .opt-label { font-size: 14px; color: var(--wa-text-dark); }
-
-  /* ============================================================
-     LIGHTBOX (visualizar imagem enviada)
-  ============================================================ */
-  #lightbox {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.92);
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-  }
-
-  #lightbox.show { display: flex; }
-  #lightbox img { max-width: 95vw; max-height: 90vh; border-radius: 6px; }
-  #lightbox-close {
-    position: absolute;
-    top: 20px; right: 20px;
-    color: #fff; font-size: 32px;
-    cursor: pointer; line-height: 1;
-    background: rgba(255,255,255,.15);
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  /* ============================================================
-     TOAST NOTIFICATION
-  ============================================================ */
-  #toast {
-    position: fixed;
-    bottom: 90px;
-    left: 50%; transform: translateX(-50%);
-    background: rgba(0,0,0,.75);
-    color: #fff;
-    padding: 8px 18px;
-    border-radius: 20px;
-    font-size: 13px;
-    z-index: 50;
-    opacity: 0;
-    transition: opacity .3s;
-    pointer-events: none;
-    white-space: nowrap;
-  }
-
-  #toast.show { opacity: 1; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g-dark:#075E54;--g-mid:#128C7E;--g-light:#25D366;
+  --bout:#DCF8C6;--bg:#ECE5DD;--white:#fff;
+  --txt:#111B21;--txt-m:#3B4A54;--txt-l:#667781;
+  --ibg:#F0F2F5;--tick:#53BDEB;--sh:rgba(0,0,0,.13);
+}
+html,body{height:100%;background:#111B21;font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+#app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;background:var(--bg);position:relative;box-shadow:0 0 40px rgba(0,0,0,.6);overflow:hidden}
+#chat-bg{position:absolute;inset:0;background-color:var(--bg);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' opacity='.05'%3E%3Ccircle cx='40' cy='40' r='18' fill='none' stroke='%23075E54' stroke-width='1.5'/%3E%3Ccircle cx='160' cy='90' r='12' fill='none' stroke='%23075E54' stroke-width='1.5'/%3E%3Ccircle cx='240' cy='30' r='22' fill='none' stroke='%23075E54' stroke-width='1.5'/%3E%3Ccircle cx='80' cy='180' r='16' fill='none' stroke='%23075E54' stroke-width='1.5'/%3E%3C/svg%3E");z-index:0;pointer-events:none}
+
+/* HEADER */
+#header{background:var(--g-dark);padding:10px 16px 10px 10px;padding-top:max(10px,env(safe-area-inset-top));display:flex;align-items:center;gap:10px;flex-shrink:0;z-index:10}
+.back-btn{color:#fff;font-size:22px;cursor:pointer;padding:4px;line-height:1}
+.av{width:40px;height:40px;border-radius:50%;background:var(--g-mid);overflow:hidden;flex-shrink:0;cursor:pointer}
+.av img{width:100%;height:100%;object-fit:cover}
+.hi{flex:1;cursor:pointer}
+.hn{color:#fff;font-size:16px;font-weight:600;line-height:1.2}
+.hs{color:rgba(255,255,255,.8);font-size:12px;margin-top:1px}
+.sdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--g-light);margin-right:4px;vertical-align:middle;animation:pd 2s infinite}
+@keyframes pd{0%,100%{opacity:1}50%{opacity:.3}}
+.hic{display:flex;gap:18px;color:rgba(255,255,255,.9);font-size:20px}
+.hic span{cursor:pointer}
+
+/* MESSAGES */
+#messages{flex:1;overflow-y:auto;overflow-x:hidden;padding:10px 10px 14px;display:flex;flex-direction:column;gap:2px;position:relative;z-index:1;scroll-behavior:smooth}
+#messages::-webkit-scrollbar{width:3px}
+#messages::-webkit-scrollbar-thumb{background:rgba(0,0,0,.2);border-radius:2px}
+.dsep{align-self:center;background:rgba(255,255,255,.88);color:var(--txt-l);font-size:12px;padding:4px 12px;border-radius:8px;margin:6px 0;box-shadow:0 1px 2px var(--sh)}
+
+/* BUBBLE */
+.bw{display:flex;flex-direction:column;max-width:83%;animation:fi .22s ease}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.bw.bot{align-self:flex-start}.bw.user{align-self:flex-end}
+.bw.user+.bw.bot,.bw.bot+.bw.user{margin-top:8px}
+.bw+.bw{margin-top:2px}
+.bubble{padding:7px 10px 5px;border-radius:8px;font-size:14.5px;line-height:1.45;color:var(--txt);position:relative;word-break:break-word;box-shadow:0 1px 2px var(--sh)}
+.bw.bot .bubble{background:var(--white)}.bw.user .bubble{background:var(--bout)}
+.bw.bot.first .bubble{border-top-left-radius:2px}
+.bw.bot.first .bubble::before{content:'';position:absolute;top:0;left:-8px;border-width:0 8px 8px 0;border-style:solid;border-color:transparent var(--white) transparent transparent}
+.bw.user.first .bubble{border-top-right-radius:2px}
+.bw.user.first .bubble::after{content:'';position:absolute;top:0;right:-8px;border-width:0 0 8px 8px;border-style:solid;border-color:transparent transparent transparent var(--bout)}
+.bmeta{display:flex;align-items:center;justify-content:flex-end;gap:3px;margin-top:2px;padding-left:40px}
+.btime{font-size:11px;color:var(--txt-l)}
+.btick{font-size:14px;color:var(--txt-l);line-height:1}
+.btick.read{color:var(--tick)}
+
+/* VIDEO */
+.vid-wrap{position:relative;border-radius:8px;overflow:hidden;background:#000;width:100%}
+.vid-wrap video{display:block;width:100%;max-height:260px;object-fit:contain;border-radius:8px;background:#000}
+.vid-label{font-size:12px;color:var(--txt-l);margin-top:4px;text-align:center;font-style:italic}
+.depo-name{font-size:12.5px;font-weight:600;color:var(--g-dark);margin-top:6px}
+.depo-stars{color:#f4c430;font-size:13px;letter-spacing:1px}
+
+/* IMAGE */
+.bimg{max-width:100%;border-radius:6px;display:block;max-height:240px;object-fit:cover;cursor:pointer}
+
+/* FILE */
+.bfile{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.04);border-radius:6px;padding:8px;min-width:180px}
+.ficon{font-size:26px;flex-shrink:0}
+.fname{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
+.fsize{font-size:11px;color:var(--txt-l);margin-top:2px}
+
+/* CTA */
+.cta-btn{display:block;width:100%;margin-top:11px;padding:12px 16px;background:linear-gradient(135deg,#128C7E,#075E54);color:#fff;border:none;border-radius:24px;font-size:15px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;transition:transform .1s,opacity .15s;box-shadow:0 3px 14px rgba(18,140,126,.45);letter-spacing:.3px}
+.cta-btn:active{transform:scale(.96)}
+
+/* QUICK REPLIES */
+#qr{display:flex;flex-wrap:wrap;gap:7px;padding:7px 10px 4px;z-index:2;position:relative}
+.qrb{background:var(--white);color:var(--g-mid);border:1.5px solid var(--g-mid);border-radius:20px;padding:7px 14px;font-size:13.5px;font-weight:500;cursor:pointer;transition:background .15s,color .15s;box-shadow:0 1px 3px var(--sh);white-space:nowrap}
+.qrb:active,.qrb:hover{background:var(--g-mid);color:#fff}
+
+/* TYPING */
+#typing{display:none;align-self:flex-start;background:var(--white);border-radius:8px;border-top-left-radius:2px;padding:10px 14px;margin:4px 0 0;box-shadow:0 1px 2px var(--sh);position:relative}
+#typing::before{content:'';position:absolute;top:0;left:-8px;border-width:0 8px 8px 0;border-style:solid;border-color:transparent var(--white) transparent transparent}
+#typing.show{display:flex;gap:4px}
+.td{width:8px;height:8px;border-radius:50%;background:var(--txt-l);animation:tb 1.2s infinite}
+.td:nth-child(2){animation-delay:.2s}.td:nth-child(3){animation-delay:.4s}
+@keyframes tb{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-7px)}}
+
+/* QUIZ */
+.qcard{background:var(--white);border-radius:12px;padding:14px;margin-top:4px;box-shadow:0 2px 8px var(--sh)}
+.qprog-lbl{font-size:12px;color:var(--txt-l);margin-bottom:4px}
+.qprog-bar{height:5px;background:#e0e0e0;border-radius:3px;overflow:hidden;margin-bottom:12px}
+.qprog-fill{height:100%;background:linear-gradient(90deg,var(--g-mid),var(--g-light));border-radius:3px;transition:width .5s ease}
+.qq{font-size:14px;font-weight:600;color:var(--txt);margin-bottom:10px;line-height:1.4}
+.qopts{display:flex;flex-direction:column;gap:7px}
+.qopt{background:var(--ibg);border:1.5px solid var(--ibg);border-radius:10px;padding:9px 14px;font-size:13.5px;cursor:pointer;color:var(--txt);transition:background .15s,border-color .15s,color .15s;text-align:left}
+.qopt.sel,.qopt:active{background:var(--g-mid);border-color:var(--g-mid);color:#fff;pointer-events:none}
+
+/* RECIPE */
+.rcard{background:linear-gradient(135deg,#f0faf8,#e6f7f5);border:1.5px solid #b2dfdb;border-radius:14px;padding:16px;margin-top:4px}
+.rtitle{font-size:15px;font-weight:700;color:var(--g-dark);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.rrow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,0,0,.07);font-size:13.5px}
+.rrow:last-of-type{border-bottom:none}
+.ring{color:var(--txt-m);font-weight:500}
+.rqty{color:var(--g-dark);font-weight:700;font-size:14px}
+.rnote{font-size:12px;color:var(--txt-l);margin-top:10px;line-height:1.4;font-style:italic}
+
+/* PROGRESS */
+.prog-wrap{margin:6px 0 4px}
+.prog-lbl{font-size:12px;color:var(--txt-l);margin-bottom:4px}
+.prog-bar{height:6px;background:#e0e0e0;border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--g-mid),var(--g-light));border-radius:3px;transition:width .7s ease}
+
+/* INPUT BAR */
+#ibar{display:flex;align-items:flex-end;gap:8px;padding:8px;padding-bottom:max(8px,env(safe-area-inset-bottom));background:var(--ibg);flex-shrink:0;z-index:10;position:relative}
+#iwrap{flex:1;display:flex;align-items:flex-end;background:var(--white);border-radius:24px;padding:6px 12px 6px 10px;gap:8px;box-shadow:0 1px 2px var(--sh);min-height:44px}
+#emjbtn{font-size:22px;cursor:pointer;color:var(--txt-l);flex-shrink:0;align-self:flex-end;margin-bottom:2px}
+#tinput{flex:1;border:none;outline:none;font-family:inherit;font-size:15px;line-height:1.4;color:var(--txt);resize:none;max-height:100px;overflow-y:auto;background:transparent;padding:2px 0}
+#tinput::placeholder{color:var(--txt-l)}
+#attbtn{font-size:20px;cursor:pointer;color:var(--txt-l);flex-shrink:0;align-self:flex-end;margin-bottom:3px}
+#sndbtn{width:46px;height:46px;border-radius:50%;background:var(--g-mid);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 6px rgba(18,140,126,.4);transition:transform .1s}
+#sndbtn:active{transform:scale(.92)}
+#sndbtn svg{width:22px;height:22px;fill:#fff}
+#finput{display:none}
+
+/* ATTACH MENU */
+#attmenu{display:none;position:absolute;bottom:68px;left:14px;background:var(--white);border-radius:14px;box-shadow:0 4px 24px rgba(0,0,0,.18);padding:12px;gap:4px;z-index:20;animation:fi .2s ease}
+#attmenu.show{display:flex;flex-direction:column}
+.aopt{display:flex;align-items:center;gap:12px;cursor:pointer;padding:8px 12px;border-radius:10px;transition:background .15s}
+.aopt:hover{background:var(--ibg)}
+.aoic{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.aolbl{font-size:14px;color:var(--txt)}
+
+/* LIGHTBOX */
+#lb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:100;align-items:center;justify-content:center}
+#lb.show{display:flex}
+#lb img{max-width:95vw;max-height:90vh;border-radius:6px}
+#lbx{position:absolute;top:20px;right:20px;color:#fff;font-size:30px;cursor:pointer;background:rgba(255,255,255,.15);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+
+/* TOAST */
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;padding:8px 18px;border-radius:20px;font-size:13px;z-index:50;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1}
 </style>
 </head>
 <body>
 
-<!-- ============================================================
-     CONFIGURAÇÕES DO BOT — edite aqui!
-============================================================ -->
-<script>
-const CONFIG = {
-  botName:       "Dr. Ricardo Campo",
-  botSubtitle:   "online",
-  botAvatar:     "", // URL de foto do perfil (deixe vazio para usar emoji)
-  botEmoji:      "👨‍⚕️",
-  buyLink:       "#", // ← COLOQUE AQUI O LINK DE COMPRA
-  productName:   "Método Bicarbonato",
-  welcomeDelay:  800,  // ms entre mensagens de boas-vindas
-  typingDelay:   1400, // ms do indicador "digitando..."
-};
-</script>
-
-<!-- ============================================================
-     HTML
-============================================================ -->
 <div id="app">
-
-  <!-- Fundo textura -->
   <div id="chat-bg"></div>
 
-  <!-- HEADER -->
   <div id="header">
     <span class="back-btn">&#8592;</span>
-
-    <div class="avatar" id="header-avatar">
-      <img id="avatar-img" src="" alt="" style="display:none">
-      <span id="avatar-emoji"></span>
+    <div class="av"><img id="avimg" src="" alt=""></div>
+    <div class="hi">
+      <div class="hn" id="hname"></div>
+      <div class="hs"><span class="sdot"></span>online</div>
     </div>
-
-    <div class="info">
-      <div class="name" id="header-name"></div>
-      <div class="status"><span class="status-dot"></span><span id="header-status"></span></div>
-    </div>
-
-    <div class="icons">
-      <span title="Vídeo">&#128249;</span>
-      <span title="Ligar">&#128222;</span>
-      <span title="Menu">&#8942;</span>
+    <div class="hic">
+      <span>&#128249;</span><span>&#128222;</span><span>&#8942;</span>
     </div>
   </div>
 
-  <!-- MENSAGENS -->
   <div id="messages">
-    <div class="date-sep" id="date-sep">Hoje</div>
-    <div id="typing-indicator" class="typing-indicator">
-      <div class="typing-dot"></div>
-      <div class="typing-dot"></div>
-      <div class="typing-dot"></div>
-    </div>
+    <div class="dsep">Hoje</div>
+    <div id="typing"><div class="td"></div><div class="td"></div><div class="td"></div></div>
   </div>
 
-  <!-- QUICK REPLIES -->
-  <div id="quick-replies"></div>
+  <div id="qr"></div>
 
-  <!-- INPUT BAR -->
-  <div id="input-bar">
-    <!-- Menu de anexo -->
-    <div id="attach-menu">
-      <div class="attach-option" id="opt-image">
-        <div class="opt-icon" style="background:#BF59CF">📷</div>
-        <span class="opt-label">Fotos e vídeos</span>
+  <div id="ibar">
+    <div id="attmenu">
+      <div class="aopt" id="opt-img">
+        <div class="aoic" style="background:#BF59CF">📷</div>
+        <span class="aolbl">Fotos e vídeos</span>
       </div>
-      <div class="attach-option" id="opt-file">
-        <div class="opt-icon" style="background:#5157AE">📄</div>
-        <span class="opt-label">Documento</span>
+      <div class="aopt" id="opt-file">
+        <div class="aoic" style="background:#5157AE">📄</div>
+        <span class="aolbl">Documento</span>
       </div>
     </div>
-
-    <div id="input-wrap">
-      <span id="emoji-btn" title="Emoji">&#128512;</span>
-      <textarea id="text-input" rows="1" placeholder="Digite uma mensagem"></textarea>
-      <span id="attach-btn" title="Anexar">📎</span>
+    <div id="iwrap">
+      <span id="emjbtn">&#128512;</span>
+      <textarea id="tinput" rows="1" placeholder="Digite uma mensagem"></textarea>
+      <span id="attbtn">📎</span>
     </div>
-
-    <button id="send-btn" title="Enviar">
-      <!-- Ícone microfone (padrão) -->
-      <svg id="icon-mic" viewBox="0 0 24 24"><path d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4zm-1 18.93V22h2v-2.07A8 8 0 0 0 20 12h-2a6 6 0 0 1-12 0H4a8 8 0 0 0 7 7.93z"/></svg>
-      <!-- Ícone seta enviar (quando há texto) -->
-      <svg id="icon-send" viewBox="0 0 24 24" style="display:none"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    <button id="sndbtn">
+      <svg id="imic" viewBox="0 0 24 24"><path d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4zm-1 18.93V22h2v-2.07A8 8 0 0 0 20 12h-2a6 6 0 0 1-12 0H4a8 8 0 0 0 7 7.93z"/></svg>
+      <svg id="isnd" viewBox="0 0 24 24" style="display:none"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
     </button>
-
-    <!-- Input de arquivo oculto -->
-    <input type="file" id="file-input" accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.zip">
+    <input type="file" id="finput">
   </div>
 </div>
 
-<!-- LIGHTBOX -->
-<div id="lightbox">
-  <span id="lightbox-close">&#10005;</span>
-  <img id="lightbox-img" src="" alt="">
-</div>
-
-<!-- TOAST -->
+<div id="lb"><span id="lbx">&#10005;</span><img id="lbimg" src="" alt=""></div>
 <div id="toast"></div>
 
-
-<!-- ============================================================
-     JAVASCRIPT
-============================================================ -->
 <script>
-/* ============================================================
-   BANCO DE DADOS DE INTENÇÕES
-   Cada intenção tem: keywords (palavras-chave), responses (array de respostas possíveis), cta (mostrar botão de compra?)
-============================================================ */
-const INTENT_DB = [
-  {
-    id: "o_que_e",
-    keywords: ["o que é","oque é","o que e","oque e","me conta","não sei","nao sei","me explica","me fala","o que seria","que método","que metodo","que é isso","conta mais"],
-    responses: [
-      `O *Método Bicarbonato* é um protocolo natural desenvolvido por mim ao longo de anos de pesquisa e prática clínica. 🧪\n\nEle utiliza o bicarbonato de sódio de forma estratégica para promover o equilíbrio do pH do organismo, ajudando na saúde geral, disposição e bem-estar. 💪`,
-      `Boa pergunta! 😄\n\nO *Método Bicarbonato* é um protocolo natural que criei para aproveitar ao máximo as propriedades do bicarbonato de sódio — de forma segura, simples e eficaz.\n\nMilhares de pessoas já transformaram a saúde com ele! 🙌`
-    ],
-    cta: true
-  },
-  {
-    id: "como_funciona",
-    keywords: ["como funciona","como usar","como aplicar","como é feito","como se usa","passo a passo","como faz","como fazer","explica melhor","mais detalhes","detalhes","funciona como"],
-    responses: [
-      `O método é dividido em fases simples:\n\n1️⃣ *Preparação* — ajuste da alimentação\n2️⃣ *Protocolo ativo* — uso estratégico do bicarbonato\n3️⃣ *Manutenção* — hábitos para manter os resultados\n\nTudo explicado em detalhes dentro do material! 📚`,
-      `É mais simples do que parece! 😊\n\nO protocolo tem etapas claras e sequenciais. Você recebe um guia completo com tudo explicado — sem segredos, sem complicação.\n\nMuita gente me diz que é surpreendentemente fácil de seguir! ✅`
-    ],
-    cta: true
-  },
-  {
-    id: "resultados",
-    keywords: ["resultado","resultados","funciona","resolve","melhora","ajuda","beneficio","benefício","beneficios","benefícios","efeito","efeitos","para que serve","pra que serve"],
-    responses: [
-      `Os resultados mais relatados pelos seguidores do método são:\n\n✅ Mais disposição e energia\n✅ Melhora digestiva\n✅ Redução de inflamações\n✅ Sensação de leveza e bem-estar\n✅ Melhora na qualidade do sono\n\nOs resultados variam de pessoa para pessoa, mas a maioria relata mudanças já nas primeiras semanas! 🌟`,
-      `Muita gente percebe mudanças logo na primeira semana! 😍\n\nOs mais comuns: mais energia, melhor digestão, menos inchaço e muito mais disposição.\n\nTenho depoimentos incríveis de quem seguiu o método corretamente! 💬`
-    ],
-    cta: false
-  },
-  {
-    id: "preco",
-    keywords: ["preço","preco","valor","custa","custo","investimento","quanto é","quanto e","quanto custa","quanto vale","caro","barato","acessível","acessivel","quanto fica","quanto vai","me diz o valor"],
-    responses: [
-      `O investimento no *Método Bicarbonato* está em um valor bastante acessível, especialmente considerando o impacto que pode ter na sua saúde. 💚\n\nClica no botão abaixo pra ver o preço atual e as condições especiais! 👇`,
-      `Posso te dizer que o valor foi pensado para ser justo e acessível — afinal, saúde não deveria ser luxo! 😊\n\nVeja o preço completo e as formas de pagamento clicando abaixo! ⬇️`
-    ],
-    cta: true
-  },
-  {
-    id: "comprar",
-    keywords: ["comprar","compra","adquirir","quero","quero comprar","quero ter","onde compro","como compro","me manda o link","link","acesso","como acesso","quero acessar","me passa o link"],
-    responses: [
-      `Que ótimo! 🎉 Você está prestes a dar um passo incrível pela sua saúde!\n\nClica no botão abaixo para garantir o seu acesso agora mesmo! ⬇️`,
-      `Arrasou na decisão! 💪\n\nÉ só clicar no botão abaixo, você será redirecionado para a página segura de compra!`
-    ],
-    cta: true
-  },
-  {
-    id: "garantia",
-    keywords: ["garantia","garantida","devolução","devolucao","reembolso","satisfação","satisfacao","risco","arrependimento","se não gostar","se nao gostar","prazo"],
-    responses: [
-      `Sim! O *Método Bicarbonato* conta com garantia total de 7 dias. 🛡️\n\nSe por qualquer motivo você não ficar satisfeito, basta entrar em contato e devolvo 100% do seu dinheiro. Sem perguntas.\n\nVocê não tem nada a perder — só a ganhar! 😄`,
-      `Pode ir sem medo! 😊\n\nTemos garantia de satisfação. Se não gostar, é só pedir reembolso dentro do prazo.\n\nA minha confiança no método é tão grande que eu assino embaixo! ✍️`
-    ],
-    cta: true
-  },
-  {
-    id: "para_quem",
-    keywords: ["para mim","pra mim","é pra mim","quem pode","para quem","pra quem","indicado","indicação","indicacao","minha situação","minha situacao","posso usar","serve pra mim","serve para mim"],
-    responses: [
-      `O método é indicado para qualquer pessoa que queira melhorar a saúde de forma natural e simples! 🌿\n\nNão importa a idade — jovens, adultos e idosos têm resultados excelentes.\n\nA única recomendação é consultar um médico se você tiver alguma condição pré-existente. 😊`,
-      `Se você quer mais energia, melhor digestão e saúde em dia — é pra você! 🙌\n\nO método é prático e qualquer pessoa consegue seguir, mesmo com uma rotina corrida.`
-    ],
-    cta: true
-  },
-  {
-    id: "funciona_mesmo",
-    keywords: ["funciona mesmo","funciona de verdade","é verdade","é verdadeiro","verdadeiro","é real","prova","comprovado","comprovação","comprovacao","científico","cientifico","depoimento","depoimentos","resultado real","funciona mesmo","acreditar"],
-    responses: [
-      `Entendo a dúvida — e é saudável questionar! 😄\n\nO método é baseado em propriedades já estudadas do bicarbonato, aliadas a um protocolo estruturado que desenvolvi com base em anos de experiência clínica.\n\nTemos centenas de depoimentos reais de pessoas que transformaram a saúde! 💬✨`,
-      `100% sim! 💚\n\nNão é mágica — é ciência aplicada de forma simples e acessível.\n\nOs resultados falam por si. Quem segue o protocolo corretamente, vê diferença! 📈`
-    ],
-    cta: true
-  },
-  {
-    id: "tempo_resultado",
-    keywords: ["quanto tempo","prazo","quando vou ver","quando vejo","quanto demora","demora muito","rápido","rapido","logo","dias","semanas","meses","quanto tempo leva","quando começo a ver"],
-    responses: [
-      `Os primeiros resultados costumam aparecer entre 7 e 14 dias para a maioria das pessoas. ⏱️\n\nMas cada organismo é único — alguns sentem diferença já nos primeiros dias! 😮\n\nO importante é seguir o protocolo com consistência.`,
-      `Muita gente relata mudanças logo na primeira semana! 🌱\n\nPara resultados mais completos, o ideal é seguir pelo menos 30 dias. Mas já dá pra sentir algo bem antes disso!`
-    ],
-    cta: false
-  },
-  {
-    id: "suporte",
-    keywords: ["suporte","acompanhamento","ajuda","dúvida","duvida","tirar dúvida","tirar duvida","atendimento","assistência","assistencia","suporte","apoio","ficou dúvida","ficou duvida","tenho dúvida","tenho duvida"],
-    responses: [
-      `Sim! Você não vai ficar sozinho(a) não! 😊\n\nO material inclui suporte para dúvidas. Você terá acesso a um canal exclusivo para tirar qualquer dúvida que surgir durante o processo.\n\nEstou aqui pra te ajudar em cada etapa! 🙌`,
-      `Com certeza! Depois de garantir o acesso, você tem suporte disponível.\n\nNão vendo um produto e sumo — acompanho meus alunos! 💪`
-    ],
-    cta: true
-  },
-  {
-    id: "pagamento",
-    keywords: ["pagamento","pagar","parcelar","parcelas","parcelamento","cartão","cartao","pix","boleto","crédito","credito","débito","debito","forma de pagamento","como pago","como pagar"],
-    responses: [
-      `Aceitamos as principais formas de pagamento: 💳\n\n✅ Cartão de crédito (parcelado)\n✅ PIX (aprovação imediata)\n✅ Boleto bancário\n\nClica no botão abaixo para ver todas as opções na página de compra!`,
-      `Pagamento facilitado! 😊\n\nCartão de crédito parcelado, PIX com acesso imediato ou boleto.\n\nEscolha o que for melhor pra você na página de compra! ⬇️`
-    ],
-    cta: true
-  },
-  {
-    id: "seguro",
-    keywords: ["seguro","segura","é seguro","risco","perigoso","faz mal","efeito colateral","efeito adverso","contraindicação","contraindicacao","pode fazer mal","tem risco"],
-    responses: [
-      `Ótima pergunta! O bicarbonato de sódio, usado de forma correta e nas quantidades certas, é seguro para a grande maioria das pessoas. 🛡️\n\nNo método eu especifico exatamente as doses e formas corretas de uso — por isso é importante seguir o protocolo e não improvisar.\n\nPessoas com doenças renais ou hipertensão devem consultar um médico antes. 😊`,
-      `Quando usado conforme o protocolo, é seguro! ✅\n\nO material traz todas as orientações de segurança e contraIndicações claramente. Transparência total! 🙏`
-    ],
-    cta: false
-  },
-  {
-    id: "nada_funciona",
-    keywords: ["já tentei","ja tentei","nada funciona","não funciona","nao funciona","tentei tudo","desanimado","desanimada","sem esperança","sem esperanca","decepcionado","decepcionar","outras coisas","não deu certo","nao deu certo","frustrado","frustrada"],
-    responses: [
-      `Eu entendo completamente essa sensação... 💙\n\nMuitas pessoas que chegam até mim com esse mesmo sentimento foram justamente as que tiveram os resultados mais surpreendentes com o método.\n\nPor quê? Porque o Método Bicarbonato atua de uma forma diferente de tudo que você provavelmente já tentou.\n\nDá uma chance — com a garantia de 7 dias, você não tem nada a perder! 😊`,
-      `Sei bem como é isso. 💪\n\nMas olha — às vezes o que faltava era a abordagem certa, não força de vontade.\n\nO Método Bicarbonato é simples, natural e tem funcionado para quem acreditou. Você pode ser o próximo! 🌟`
-    ],
-    cta: true
-  },
-  {
-    id: "quero_comprar_agora",
-    keywords: ["quero comprar agora","comprar agora","quero agora","garantir agora","quero garantir","acesso agora","pegar agora","me manda","me passa","vai","vamos","bora","vou","comprei"],
-    responses: [
-      `Que incrível! 🎉 Você está fazendo uma ótima escolha!\n\nClica no botão abaixo para garantir o seu acesso agora mesmo de forma segura! ⬇️`,
-      `Isso aí! 💚🎉\n\nÉ só um clique! Seu acesso é liberado na hora. Vem! ⬇️`
-    ],
-    cta: true
-  },
-  {
-    id: "humano",
-    keywords: ["atendente","humano","pessoa real","pessoa","falar com alguém","falar com alguem","falar com você","falar com voce","falar com o doutor","falar com o dr","quero falar","quero conversar","suporte humano","me liga"],
-    responses: [
-      `Posso te direcionar para o atendimento com nossa equipe! 😊\n\nMas posso te dizer que consigo responder a maioria das dúvidas aqui mesmo.\n\nSe precisar de atendimento personalizado, use o link de compra para acessar nosso suporte! 📩`,
-      `Entendido! Nossa equipe está disponível.\n\nPara atendimento humano, entre em contato pelos canais oficiais após a compra — você terá acesso exclusivo ao suporte! 🙌`
-    ],
-    cta: true
-  },
-  {
-    id: "tchau",
-    keywords: ["tchau","até mais","ate mais","obrigado","obrigada","valeu","tks","thanks","bye","encerrar","até logo","ate logo","flw","falou","de nada","ótimo","ok","tudo bem","tudo certo"],
-    responses: [
-      `Foi um prazer conversar com você! 😊\n\nSempre que tiver dúvidas, pode voltar aqui.\n\nE lembre-se: o *Método Bicarbonato* pode ser o que você estava procurando! 💚`,
-      `Obrigado por conversar comigo! 🙏\n\nQualquer dúvida, é só chamar. Cuide-se! 😊💚`
-    ],
-    cta: false
-  },
+/* =============================================
+   ✏️ CONFIG — edite aqui
+============================================= */
+const C = {
+  nome:    "Dr. Ricardo Campo",
+  avatar:  "https://metodotripe.shop/wp-content/uploads/2026/04/Screenshot-82.png",
+  link:    "#", // ← SEU LINK DE CHECKOUT
+  produto: "Método Bicarbonato",
+  vsl:     "https://metodotripe.shop/wp-content/uploads/2026/04/DR_VSL-01.mp4",
+  depos: [
+    { url:"https://metodotripe.shop/wp-content/uploads/2026/04/DR_VSL-01.mp4", nome:"Carlos M., 47 anos" },
+    { url:"https://metodotripe.shop/wp-content/uploads/2026/04/DR_VSL-01.mp4", nome:"Roberto S., 52 anos" },
+    { url:"https://metodotripe.shop/wp-content/uploads/2026/04/DR_VSL-01.mp4", nome:"Marcos T., 44 anos" },
+    { url:"https://metodotripe.shop/wp-content/uploads/2026/04/DR_VSL-01.mp4", nome:"Paulo R., 58 anos" },
+  ],
+};
+
+/* =============================================
+   QUIZ
+============================================= */
+const QUIZ = [
+  { q:"Quantos anos você tem?", opts:["18–30 anos","31–45 anos","46–55 anos","56+ anos"], k:"idade" },
+  { q:"Como está sua energia e disposição hoje?", opts:["Ótima, sem reclamações","Razoável, poderia ser melhor","Baixa, me sinto cansado sempre","Péssima, sem ânimo pra nada"], k:"energia" },
+  { q:"E sua performance e libido?", opts:["Excelente","Boa, mas já foi melhor","Com quedas frequentes","Muito comprometida, preciso de ajuda"], k:"libido" },
+  { q:"Você dorme bem?", opts:["Sim, durmo muito bem","Às vezes tenho insônia","Durmo mal com frequência","Raramente consigo descansar de verdade"], k:"sono" },
 ];
 
-/* Fallback (quando não encontrar intenção) */
-const FALLBACK_RESPONSES = [
-  `Hmm, não entendi muito bem... 🤔 Pode reformular a pergunta?\n\nOu escolha uma das opções abaixo! 😊`,
-  `Desculpa, não captei! Pode tentar de outro jeito? 😄\n\nEstou aqui pra te ajudar com tudo sobre o *Método Bicarbonato*!`,
-  `Não entendi direito... 😅 Tente perguntar de forma diferente!\n\nSe quiser, pode usar os botões de resposta rápida!`
+const RECEITAS = {
+  "18–30 anos": { bic:"3,2g", agua:"280ml", limao:"½ unidade", mel:"1 col. chá", intervalo:"A cada 12h" },
+  "31–45 anos": { bic:"3,8g", agua:"300ml", limao:"½ unidade", mel:"1 col. chá", intervalo:"A cada 12h" },
+  "46–55 anos": { bic:"4,2g", agua:"320ml", limao:"¾ unidade", mel:"1,5 col. chá", intervalo:"A cada 8h" },
+  "56+ anos":   { bic:"4,5g", agua:"350ml", limao:"1 unidade",  mel:"1,5 col. chá", intervalo:"A cada 8h" },
+};
+
+/* =============================================
+   INTENÇÕES
+============================================= */
+const INTENTS = [
+  { k:["o que é","me conta","não sei","oque e","me explica","que método","o que seria","conta mais","bicarbonato","o que e"],
+    r:[`O *Método Bicarbonato* é um protocolo 100% natural que desenvolvi após anos pesquisando a bioquímica hormonal masculina. 🧪\n\nEle usa o bicarbonato de sódio de forma estratégica para criar o ambiente ideal no organismo — desbloqueando a produção natural de testosterona que o estresse, má alimentação e a idade foram suprimindo.\n\nResultado: mais energia, mais libido e mais performance. 💪`], cta:true },
+  { k:["funciona","como funciona","resultado","como usar","passo a passo","benefício","efeito","como faz","como é"],
+    r:[`O protocolo age em 3 frentes ao mesmo tempo:\n\n🔥 *1. Equilíbrio do pH* — cria o ambiente hormonal ideal para testosterona\n⚡ *2. Circulação* — melhora o fluxo sanguíneo onde mais importa\n💊 *3. Recuperação hormonal* — reduz a inflamação que sabota a produção\n\nMais de 4.200 homens já seguiram o protocolo. A maioria sente diferença em 7 dias. 📈`], cta:true },
+  { k:["preço","preco","valor","custa","custo","quanto","investimento","caro","barato","acessível"],
+    r:[`O investimento foi calculado para ser acessível — saúde masculina não pode ser luxo. 💚\n\nClica abaixo para ver o valor atual com todas as condições especiais!\n\n⚠️ *O desconto ativo agora é por tempo limitado.*`], cta:true },
+  { k:["comprar","compra","adquirir","quero","link","acesso","garantir","onde compro","como compro"],
+    r:[`Decisão certa! 💪\n\nClica no botão abaixo — você vai para a página segura de compra. O acesso é *imediato* após a confirmação! ⬇️`], cta:true },
+  { k:["garantia","devolução","reembolso","satisfação","risco","arrependimento","prazo","devolver"],
+    r:[`*Garantia total de 7 dias.* 🛡️\n\nSe por qualquer motivo você não ficar 100% satisfeito, devolvo cada centavo. Sem perguntas, sem burocracia.\n\nA confiança no método é tão grande que eu assino embaixo. Você não tem nada a perder — só a ganhar. 😉`], cta:true },
+  { k:["para quem","pra quem","para mim","posso usar","quem pode","indicado","serve","minha situação"],
+    r:[`Para qualquer homem que queira recuperar o que o tempo e o estresse foram tirando:\n\n✅ Mais energia e disposição diária\n✅ Libido de volta ao pico\n✅ Performance que surpreende\n✅ Confiança e autoestima elevadas\n\nDos 25 aos 70 anos — o protocolo se adapta ao seu perfil (por isso fazemos o teste personalizado!). 😊`], cta:true },
+  { k:["depoimento","funciona mesmo","prova","real","verdade","comprovado","resultado real","acreditar"],
+    r:[`Entendo o ceticismo — e é saudável! 😄\n\nMas os números falam sozinhos:\n\n📊 87% relataram melhora na energia em até 10 dias\n📊 81% relataram melhora significativa na libido\n📊 93% voltariam a comprar\n\nVeja os depoimentos em vídeo logo abaixo 👇`], cta:false },
+  { k:["quanto tempo","prazo","dias","semanas","rápido","quando vejo","quando começa","demora"],
+    r:[`*Linha do tempo real dos nossos alunos:*\n\n📅 *Dias 1–3:* mais energia e foco\n📅 *Dias 4–7:* humor e disposição melhoram\n📅 *Semana 2:* libido notavelmente mais intensa\n📅 *Semana 3–4:* performance e firmeza no auge\n\nAlguns homens sentem diferença já no 3º dia. ⚡`], cta:true },
+  { k:["pagamento","parcelar","pix","boleto","cartão","credito","débito","forma de pagamento","como pago"],
+    r:[`💳 Todas as formas disponíveis:\n\n✅ PIX — acesso *imediato*\n✅ Cartão de crédito — parcelado em até 12x\n✅ Boleto bancário\n\nEscolha o que for melhor para você na página de compra! ⬇️`], cta:true },
+  { k:["seguro","risco","faz mal","efeito colateral","contraindicação","perigoso","pode fazer mal"],
+    r:[`Bicarbonato de sódio é uma das substâncias mais estudadas da história da medicina. ✅\n\nUsado nas doses e formas corretas do protocolo, é seguro para a grande maioria dos homens.\n\n⚠️ Se você tiver hipertensão severa ou doença renal, consulte seu médico antes.\n\nO material traz todas as orientações com total transparência. 🙏`], cta:false },
+  { k:["testosterona","hormônio","hormonio","testo","libido","energia masculina","queda","disposição"],
+    r:[`Exatamente o ponto central! 🎯\n\nA testosterona cai cerca de 1% ao ano a partir dos 30. Aos 45, muitos homens já perderam 15–20% da produção — sem nem perceber.\n\nO *Método Bicarbonato* age diretamente nos mecanismos que suprimem essa produção — sem hormônios sintéticos, sem receita médica, sem efeitos colaterais.\n\nÉ o seu corpo voltando a funcionar como deveria. 🔥`], cta:true },
+  { k:["nada funciona","já tentei","tentei tudo","frustrado","desanimado","não resolve","decepcionado","cansado de tentar"],
+    r:[`Cara, eu ouço isso todo dia... e entendo completamente. 💙\n\nMas a maioria das soluções trata o sintoma — nunca a raiz.\n\nO Método Bicarbonato age no *ambiente hormonal* do seu corpo, algo que nenhum suplemento comum faz.\n\nÉ por isso que funciona justamente para quem "já tentou tudo". E com garantia de 7 dias, o risco é zero pra você. 🙌`], cta:true },
+  { k:["falar com","atendente","humano","suporte","contato","falar com o dr","whatsapp"],
+    r:[`Estou aqui para responder tudo! 😊\n\nPara acompanhamento personalizado e suporte pós-compra, você terá acesso ao canal exclusivo de alunos. 📩`], cta:true },
+  { k:["tchau","obrigado","obrigada","valeu","até mais","bye","encerrar","flw","boa tarde","boa noite","oi","olá","ola"],
+    r:[`Foi um prazer! 🙏\n\nLembre-se — cada dia sem o protocolo é um dia a menos de energia e performance.\n\nEstou aqui quando precisar. 💚`], cta:false },
+];
+const FALLBACKS = [
+  `Não entendi direito... 😅 Pode reformular?\n\nOu use os botões abaixo — posso responder tudo sobre *testosterona, libido e o protocolo*!`,
+  `Hmm, tenta perguntar de outro jeito! 🤔\n\nEstou aqui pra ajudar com tudo sobre o *Método Bicarbonato*!`,
 ];
 
-/* ============================================================
-   ESTADO DA APLICAÇÃO
-============================================================ */
-let isTyping   = false;
-let msgQueue   = [];
-let processing = false;
+/* =============================================
+   ESTADO
+============================================= */
+let qStep = 0, qResp = {}, qAtivo = false;
 
-/* ============================================================
-   HELPERS
-============================================================ */
-function getTime() {
-  const now = new Date();
-  return now.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+/* =============================================
+   UTILS
+============================================= */
+const $ = id => document.getElementById(id);
+const msgEl = $('messages'), typEl = $('typing'), qrEl = $('qr');
+const now = () => new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+const rnd = a => a[Math.floor(Math.random()*a.length)];
+const wait = ms => new Promise(r=>setTimeout(r,ms));
+function fmt(t){ return t.replace(/\*(.*?)\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>'); }
+function scrollB(){ msgEl.scrollTo({top:msgEl.scrollHeight,behavior:'smooth'}); }
+function showTyp(){ typEl.classList.add('show'); scrollB(); }
+function hideTyp(){ typEl.classList.remove('show'); }
+function reinsT(){ if(typEl.parentElement===msgEl) msgEl.removeChild(typEl); msgEl.appendChild(typEl); }
+function metaEl(type){
+  const m=document.createElement('div'); m.className='bmeta';
+  const t=document.createElement('span'); t.className='btime'; t.textContent=now(); m.appendChild(t);
+  if(type==='user'){ const tk=document.createElement('span'); tk.className='btick'; tk.innerHTML='✓✓'; m.appendChild(tk); setTimeout(()=>tk.classList.add('read'),1500); }
+  return m;
 }
+function fileSz(b){ if(b<1024)return b+' B'; if(b<1048576)return(b/1024).toFixed(1)+' KB'; return(b/1048576).toFixed(1)+' MB'; }
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
 
-function randomFrom(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
+/* =============================================
+   ADD MESSAGE
+============================================= */
+function addMsg({text,type,first=false,cta=false,video,img,file,quiz,recipe,prog}){
+  reinsT();
+  const wrap=document.createElement('div');
+  wrap.className=`bw ${type}${first?' first':''}`;
+  const bub=document.createElement('div'); bub.className='bubble';
 
-function formatText(text) {
-  // Negrito *texto* → <strong>
-  text = text.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
-  // Quebras de linha
-  text = text.replace(/\n/g, '<br>');
-  return text;
-}
-
-function fileSize(bytes) {
-  if (bytes < 1024)       return bytes + ' B';
-  if (bytes < 1048576)    return (bytes/1024).toFixed(1) + ' KB';
-  return (bytes/1048576).toFixed(1) + ' MB';
-}
-
-function fileIcon(name) {
-  const ext = name.split('.').pop().toLowerCase();
-  if (['jpg','jpeg','png','gif','webp','bmp'].includes(ext)) return '🖼️';
-  if (ext === 'pdf')  return '📕';
-  if (['doc','docx'].includes(ext)) return '📘';
-  if (['xls','xlsx'].includes(ext)) return '📗';
-  if (['zip','rar','7z'].includes(ext)) return '🗜️';
-  return '📄';
-}
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
-}
-
-/* ============================================================
-   MATCHING DE INTENÇÃO
-============================================================ */
-function matchIntent(input) {
-  const norm = input.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  let best = null, bestScore = 0;
-
-  for (const intent of INTENT_DB) {
-    let score = 0;
-    for (const kw of intent.keywords) {
-      const normKw = kw.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      if (norm.includes(normKw)) score += normKw.split(' ').length; // peso por nº de palavras
-    }
-    if (score > bestScore) { bestScore = score; best = intent; }
+  if(video){
+    const vw=document.createElement('div'); vw.className='vid-wrap';
+    const v=document.createElement('video');
+    v.src=video.url; v.controls=true; v.playsInline=true; v.preload='metadata';
+    vw.appendChild(v); bub.appendChild(vw);
+    if(video.label){ const l=document.createElement('div'); l.className='vid-label'; l.textContent=video.label; bub.appendChild(l); }
+    if(video.nome){ const n=document.createElement('div'); n.className='depo-name'; n.textContent=video.nome; const s=document.createElement('div'); s.className='depo-stars'; s.textContent='★★★★★'; bub.appendChild(n); bub.appendChild(s); }
+  } else if(img){
+    const i=document.createElement('img'); i.className='bimg'; i.src=img; i.onclick=()=>openLb(img); bub.appendChild(i);
+  } else if(file){
+    const f=document.createElement('div'); f.className='bfile';
+    f.innerHTML=`<span class="ficon">📄</span><div><div class="fname">${file.name}</div><div class="fsize">${fileSz(file.size)}</div></div>`;
+    bub.appendChild(f);
+  } else if(quiz){
+    bub.style.padding='6px'; bub.appendChild(buildQuizCard(quiz));
+  } else if(recipe){
+    bub.style.padding='6px'; bub.appendChild(buildRecipe(recipe));
+  } else if(prog){
+    const pw=document.createElement('div'); pw.className='prog-wrap';
+    const pl=document.createElement('div'); pl.className='prog-lbl'; pl.textContent=prog.label;
+    const pb=document.createElement('div'); pb.className='prog-bar';
+    const pf=document.createElement('div'); pf.className='prog-fill'; pf.style.width='0%';
+    pb.appendChild(pf); pw.appendChild(pl); pw.appendChild(pb); bub.appendChild(pw);
+    setTimeout(()=>pf.style.width=prog.pct+'%',100);
+  } else if(text){
+    bub.innerHTML=fmt(text);
   }
 
-  return bestScore > 0 ? best : null;
-}
-
-/* ============================================================
-   RENDERIZAÇÃO DE MENSAGENS
-============================================================ */
-const messagesEl    = document.getElementById('messages');
-const typingEl      = document.getElementById('typing-indicator');
-const quickRepliesEl= document.getElementById('quick-replies');
-
-function scrollBottom(smooth = true) {
-  messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
-}
-
-function createBubble({ text, type, first, imgSrc, fileData, cta }) {
-  const wrap = document.createElement('div');
-  wrap.className = `bubble-wrap ${type}${first ? ' first' : ''}`;
-
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble';
-
-  if (imgSrc) {
-    const img = document.createElement('img');
-    img.className = 'bubble-img';
-    img.src = imgSrc;
-    img.alt = 'imagem';
-    img.onclick = () => openLightbox(imgSrc);
-    bubble.appendChild(img);
-  } else if (fileData) {
-    const fd = document.createElement('div');
-    fd.className = 'bubble-file';
-    fd.innerHTML = `
-      <span class="file-icon">${fileIcon(fileData.name)}</span>
-      <div class="file-info">
-        <div class="file-name">${fileData.name}</div>
-        <div class="file-size">${fileSize(fileData.size)}</div>
-      </div>`;
-    bubble.appendChild(fd);
-  } else if (text) {
-    bubble.innerHTML = formatText(text);
+  if(cta){
+    const a=document.createElement('a'); a.className='cta-btn';
+    a.href=C.link; a.target='_blank'; a.rel='noopener';
+    a.innerHTML=`🔥 Quero o ${C.produto} AGORA!`;
+    bub.appendChild(a);
   }
-
-  if (cta) {
-    const btn = document.createElement('a');
-    btn.className = 'cta-btn';
-    btn.href = CONFIG.buyLink;
-    btn.target = '_blank';
-    btn.rel = 'noopener';
-    btn.textContent = `🛒 Quero o ${CONFIG.productName}!`;
-    bubble.appendChild(btn);
-  }
-
-  const meta = document.createElement('div');
-  meta.className = 'bubble-meta';
-
-  const time = document.createElement('span');
-  time.className = 'bubble-time';
-  time.textContent = getTime();
-
-  meta.appendChild(time);
-
-  if (type === 'user') {
-    const ticks = document.createElement('span');
-    ticks.className = 'bubble-ticks';
-    ticks.innerHTML = '✓✓';
-    meta.appendChild(ticks);
-    // Simula leitura após 1.5s
-    setTimeout(() => ticks.classList.add('read'), 1500);
-  }
-
-  wrap.appendChild(bubble);
-  wrap.appendChild(meta);
-
+  wrap.appendChild(bub); wrap.appendChild(metaEl(type));
+  msgEl.insertBefore(wrap,typEl); scrollB();
   return wrap;
 }
 
-function addMessage({ text, type, first = false, imgSrc, fileData, cta = false }) {
-  // Remove typing indicator e reinsere no final
-  if (typingEl.parentElement === messagesEl) messagesEl.removeChild(typingEl);
-
-  const wrap = createBubble({ text, type, first, imgSrc, fileData, cta });
-  messagesEl.appendChild(wrap);
-  messagesEl.appendChild(typingEl);
-
-  scrollBottom();
-  return wrap;
+async function botSay(opts,{delay=1350,first=false}={}){
+  showTyp(); await wait(delay); hideTyp(); return addMsg({...opts,type:'bot',first});
 }
 
-/* ============================================================
-   INDICADOR DIGITANDO
-============================================================ */
-function showTyping() {
-  typingEl.classList.add('show');
-  scrollBottom();
-}
-
-function hideTyping() {
-  typingEl.classList.remove('show');
-}
-
-/* ============================================================
-   ENVIAR MENSAGEM DO BOT (com delay e typing)
-============================================================ */
-function botSay(text, { cta = false, delay = CONFIG.typingDelay, first = false } = {}) {
-  return new Promise(resolve => {
-    showTyping();
-    setTimeout(() => {
-      hideTyping();
-      addMessage({ text, type: 'bot', first, cta });
-      resolve();
-    }, delay);
-  });
-}
-
-/* ============================================================
+/* =============================================
    QUICK REPLIES
-============================================================ */
-function showQuickReplies(buttons) {
-  quickRepliesEl.innerHTML = '';
-  for (const btn of buttons) {
-    const el = document.createElement('button');
-    el.className = 'qr-btn';
-    el.textContent = btn.label;
-    el.onclick = () => {
-      clearQuickReplies();
-      handleUserMessage(btn.label, btn.value || btn.label);
-    };
-    quickRepliesEl.appendChild(el);
+============================================= */
+function setQR(btns){
+  qrEl.innerHTML='';
+  for(const b of btns){
+    const el=document.createElement('button'); el.className='qrb'; el.textContent=b.label;
+    el.onclick=()=>{ clearQR(); handleUser(b.label,b.v||b.label); };
+    qrEl.appendChild(el);
   }
 }
+function clearQR(){ qrEl.innerHTML=''; }
 
-function clearQuickReplies() {
-  quickRepliesEl.innerHTML = '';
+/* =============================================
+   QUIZ CARDS
+============================================= */
+function buildQuizCard({q,opts,step}){
+  const card=document.createElement('div'); card.className='qcard';
+  const pl=document.createElement('div'); pl.className='qprog-lbl'; pl.textContent=`Pergunta ${step} de ${QUIZ.length}`;
+  const pb=document.createElement('div'); pb.className='qprog-bar';
+  const pf=document.createElement('div'); pf.className='qprog-fill'; pf.style.width=((step-1)/QUIZ.length*100)+'%';
+  setTimeout(()=>pf.style.width=(step/QUIZ.length*100)+'%',100);
+  pb.appendChild(pf);
+  const qq=document.createElement('div'); qq.className='qq'; qq.textContent=q;
+  const oo=document.createElement('div'); oo.className='qopts';
+  for(const o of opts){
+    const btn=document.createElement('button'); btn.className='qopt'; btn.textContent=o;
+    btn.onclick=()=>{ btn.classList.add('sel'); handleQuizResp(o); };
+    oo.appendChild(btn);
+  }
+  card.appendChild(pl); card.appendChild(pb); card.appendChild(qq); card.appendChild(oo);
+  return card;
 }
 
-/* ============================================================
-   FLUXO DE BOAS-VINDAS
-============================================================ */
-async function welcomeFlow() {
-  await delay(CONFIG.welcomeDelay);
-  await botSay("Olá! 👋 Seja bem-vindo(a)!", { first: true, delay: 1000 });
-  await botSay(`Eu sou o ${CONFIG.botName} 😊`, { delay: 1200 });
-  await botSay(`Me conta uma coisa… você já ouviu falar do *${CONFIG.productName}*? 🤔`, { delay: 1400 });
+function buildRecipe(r){
+  const card=document.createElement('div'); card.className='rcard';
+  const t=document.createElement('div'); t.className='rtitle'; t.innerHTML='🧪 Sua Receita Personalizada';
+  card.appendChild(t);
+  const rows=[['Bicarbonato de sódio',r.bic],['Água filtrada',r.agua],['Suco de limão',r.limao],['Mel puro',r.mel],['Frequência das doses',r.intervalo]];
+  for(const[i,q] of rows){
+    const row=document.createElement('div'); row.className='rrow';
+    row.innerHTML=`<span class="ring">${i}</span><span class="rqty">${q}</span>`;
+    card.appendChild(row);
+  }
+  const n=document.createElement('div'); n.className='rnote';
+  n.textContent='⚠️ Esta receita foi calculada para o seu perfil. O protocolo completo, horários exatos e orientações de segurança estão no material do Método Bicarbonato.';
+  card.appendChild(n);
+  return card;
+}
 
-  showQuickReplies([
-    { label: "✅ Sim, já ouvi!", value: "sim já ouvi falar" },
-    { label: "❓ Não, me conta!", value: "não sei o que é me conta" },
-    { label: "💰 Quanto custa?", value: "quanto custa" },
-    { label: "🛒 Quero comprar!", value: "quero comprar agora" },
+/* =============================================
+   QUIZ FLOW
+============================================= */
+async function nextQ(){
+  if(qStep>=QUIZ.length){ await finalizarQuiz(); return; }
+  const q=QUIZ[qStep]; qStep++;
+  await botSay({quiz:{q:q.q,opts:q.opts,step:qStep},first:true},{delay:900});
+}
+
+async function handleQuizResp(resp){
+  qResp[QUIZ[qStep-1].k]=resp;
+  addMsg({text:resp,type:'user',first:true});
+  if(qStep<QUIZ.length){
+    await botSay({text:rnd(["Anotado! ✅","Entendido! 👍","Perfeito! 😊","Ok, continuando... ⚡"]),first:true},{delay:650});
+    await nextQ();
+  } else { await finalizarQuiz(); }
+}
+
+async function finalizarQuiz(){
+  qAtivo=false;
+  await botSay({text:"Analisando seu perfil... ⚙️",first:true},{delay:750});
+  await botSay({prog:{label:'Calculando sua receita exclusiva...',pct:100},first:false},{delay:1300});
+  await wait(500);
+  await botSay({text:"✅ *Análise concluída!*\n\nBaseado no seu perfil, calculei as doses exatas de cada ingrediente para *maximizar os resultados no menor tempo possível.*",first:true},{delay:1000});
+  const r=RECEITAS[qResp.idade]||RECEITAS["31–45 anos"];
+  await botSay({recipe:r,first:false},{delay:1100});
+  await botSay({
+    text:"Esta é apenas uma prévia da sua receita. 👆\n\nNo material completo você recebe:\n\n📋 Protocolo passo a passo detalhado\n⏰ Horários exatos para cada dose\n🚫 O que NUNCA misturar\n📈 Como potencializar os resultados x3\n🔒 Acesso vitalício + atualizações gratuitas",
+    cta:true, first:true
+  },{delay:1500});
+  setTimeout(()=>setQR([
+    {label:"🛒 Garantir acesso agora!",v:"quero comprar agora"},
+    {label:"💳 Formas de pagamento",v:"formas de pagamento"},
+    {label:"🛡️ Tem garantia?",v:"tem garantia"},
+    {label:"💬 Ver depoimentos",v:"__depos__"},
+  ]),700);
+}
+
+/* =============================================
+   DEPOIMENTOS
+============================================= */
+async function mostrarDepos(){
+  await botSay({text:"Selecionei depoimentos *reais* de homens que já fizeram o protocolo. 👇\n\nAssista — eles contam os resultados com as próprias palavras:",first:true},{delay:1200});
+  for(let i=0;i<C.depos.length;i++){
+    await botSay({video:{url:C.depos[i].url,nome:C.depos[i].nome},first:i===0},{delay:i===0?900:500});
+  }
+  await botSay({
+    text:"Resultados *reais* de homens reais. 💪\n\nAgora é a sua vez. O protocolo completo com a sua receita personalizada está a um clique de você:",
+    cta:true, first:true
+  },{delay:1400});
+  setTimeout(()=>setQR([
+    {label:"🛒 Garantir meu acesso!",v:"quero comprar agora"},
+    {label:"💰 Ver preço",v:"quanto custa"},
+    {label:"🛡️ Garantia",v:"tem garantia"},
+  ]),600);
+}
+
+/* =============================================
+   INTENT MATCH
+============================================= */
+function matchIntent(input){
+  const n=input.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  let best=null,score=0;
+  for(const i of INTENTS){
+    let s=0;
+    for(const kw of i.k){
+      const nkw=kw.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      if(n.includes(nkw)) s+=nkw.split(' ').length;
+    }
+    if(s>score){score=s;best=i;}
+  }
+  return score>0?best:null;
+}
+
+/* =============================================
+   HANDLE USER
+============================================= */
+async function handleUser(display,value){
+  if(qAtivo) return;
+  clearQR();
+  const v=value||display;
+
+  if(v==='__start_quiz__'){
+    qAtivo=true; qStep=0; qResp={};
+    addMsg({text:"Sim! Quero fazer o teste! 🧪",type:'user',first:true});
+    await botSay({text:"Perfeito! 🎯\n\nVou fazer *4 perguntas rápidas* para calibrar o protocolo exato para você.\n\nResponde com sinceridade para os resultados serem precisos! 💪",first:true},{delay:950});
+    await nextQ(); return;
+  }
+
+  if(v==='__depos__'){
+    addMsg({text:"Quero ver os depoimentos! 💬",type:'user',first:true});
+    await mostrarDepos(); return;
+  }
+
+  addMsg({text:display,type:'user',first:true});
+
+  if(v.toLowerCase().includes('depoiment')||v.toLowerCase().includes('testemunho')){
+    await mostrarDepos(); return;
+  }
+
+  const intent=matchIntent(v);
+  if(intent){
+    await botSay({text:rnd(intent.r),cta:intent.cta,first:true});
+  } else {
+    await botSay({text:rnd(FALLBACKS),first:true});
+  }
+  setTimeout(()=>setQR([
+    {label:"💰 Quanto custa?",v:"quanto custa"},
+    {label:"✅ Tem garantia?",v:"tem garantia"},
+    {label:"🛒 Quero comprar!",v:"quero comprar agora"},
+    {label:"💬 Depoimentos",v:"__depos__"},
+  ]),500);
+}
+
+/* =============================================
+   WELCOME FLOW
+============================================= */
+async function welcome(){
+  await wait(500);
+  await botSay({text:"Olá! 👋 Seja bem-vindo!",first:true},{delay:750});
+  await botSay({text:`Sou o *${C.nome}*. 😊\n\nVocê chegou até aqui por um motivo — e eu tenho o que você está procurando.`,first:true},{delay:1200});
+  await botSay({text:"Antes de tudo, assiste a este vídeo. É rápido e pode mudar tudo pra você. 👇",first:true},{delay:1100});
+  await botSay({video:{url:C.vsl,label:"▶ Assista antes de continuar"},first:false},{delay:900});
+  await wait(1000);
+  await botSay({
+    text:"Então você já entende por que mais de *4.200 homens* já fizeram o protocolo. 🔥\n\nAgora me deixa fazer um teste rápido — menos de 1 minuto — para calcular a *receita personalizada* com as doses exatas para o seu perfil.",
+    first:true
+  },{delay:1500});
+  setQR([
+    {label:"✅ Quero fazer o teste!",v:"__start_quiz__"},
+    {label:"❓ O que é o Método?",v:"o que é o método bicarbonato"},
+    {label:"💬 Ver depoimentos",v:"__depos__"},
+    {label:"💰 Quanto custa?",v:"quanto custa"},
   ]);
 }
 
-function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+/* =============================================
+   INPUT
+============================================= */
+const ti=$('tinput');
+ti.addEventListener('input',()=>{
+  ti.style.height='auto'; ti.style.height=Math.min(ti.scrollHeight,100)+'px';
+  const has=ti.value.trim().length>0;
+  $('imic').style.display=has?'none':'block'; $('isnd').style.display=has?'block':'none';
+});
+ti.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doSend();} });
+$('sndbtn').addEventListener('click',doSend);
+function doSend(){
+  const v=ti.value.trim(); if(!v||qAtivo) return;
+  ti.value=''; ti.style.height='auto';
+  $('imic').style.display='block'; $('isnd').style.display='none';
+  handleUser(v);
+}
 
-/* ============================================================
-   PROCESSAR MENSAGEM DO USUÁRIO
-============================================================ */
-async function handleUserMessage(display, value) {
-  clearQuickReplies();
-
-  // Adiciona bolha do usuário
-  addMessage({ text: display, type: 'user', first: true });
-
-  const intent = matchIntent(value || display);
-
-  if (intent) {
-    const resp = randomFrom(intent.responses);
-    await botSay(resp, { cta: intent.cta, first: true });
-
-    // Após resposta, oferece menu de opções
-    setTimeout(() => {
-      showQuickReplies([
-        { label: "💰 Preço", value: "quanto custa" },
-        { label: "✅ Garantia", value: "tem garantia" },
-        { label: "🛒 Comprar agora", value: "quero comprar agora" },
-        { label: "❓ Mais perguntas", value: "como funciona" },
-      ]);
-    }, 600);
+/* ATTACH */
+const ab=$('attbtn'), am=$('attmenu'), fi=$('finput');
+ab.addEventListener('click',e=>{e.stopPropagation();am.classList.toggle('show');});
+document.addEventListener('click',()=>am.classList.remove('show'));
+$('opt-img').addEventListener('click',()=>{fi.accept='image/*';fi.click();am.classList.remove('show');});
+$('opt-file').addEventListener('click',()=>{fi.accept='.pdf,.doc,.docx';fi.click();am.classList.remove('show');});
+fi.addEventListener('change',()=>{
+  const f=fi.files[0]; if(!f) return;
+  if(f.type.startsWith('image/')){
+    const r=new FileReader();
+    r.onload=e=>{ addMsg({img:e.target.result,type:'user',first:true}); fi.value='';
+      setTimeout(async()=>{ await botSay({text:"Recebi sua foto! 📸 Posso te ajudar com mais alguma coisa sobre o *Método Bicarbonato*?",first:true}); setQR([{label:"🛒 Quero comprar!",v:"quero comprar agora"},{label:"💰 Ver preço",v:"quanto custa"}]); },700);
+    }; r.readAsDataURL(f);
   } else {
-    const resp = randomFrom(FALLBACK_RESPONSES);
-    await botSay(resp, { first: true });
-
-    setTimeout(() => {
-      showQuickReplies([
-        { label: "O que é?", value: "o que é" },
-        { label: "Como funciona?", value: "como funciona" },
-        { label: "Quanto custa?", value: "quanto custa" },
-        { label: "Quero comprar!", value: "quero comprar agora" },
-      ]);
-    }, 600);
-  }
-}
-
-/* ============================================================
-   INPUT — auto-resize, toggle ícone
-============================================================ */
-const textInput = document.getElementById('text-input');
-const iconMic   = document.getElementById('icon-mic');
-const iconSend  = document.getElementById('icon-send');
-
-textInput.addEventListener('input', () => {
-  textInput.style.height = 'auto';
-  textInput.style.height = Math.min(textInput.scrollHeight, 120) + 'px';
-
-  const hasText = textInput.value.trim().length > 0;
-  iconMic.style.display  = hasText ? 'none' : 'block';
-  iconSend.style.display = hasText ? 'block' : 'none';
-});
-
-textInput.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    doSend();
+    addMsg({file:{name:f.name,size:f.size},type:'user',first:true}); fi.value='';
+    setTimeout(async()=>{ await botSay({text:`Recebi o arquivo *${f.name}*! 📎`,first:true}); },700);
   }
 });
 
-document.getElementById('send-btn').addEventListener('click', doSend);
+/* LIGHTBOX */
+function openLb(s){ $('lbimg').src=s; $('lb').classList.add('show'); }
+$('lbx').addEventListener('click',()=>$('lb').classList.remove('show'));
+$('lb').addEventListener('click',e=>{ if(e.target===$('lb'))$('lb').classList.remove('show'); });
 
-function doSend() {
-  const val = textInput.value.trim();
-  if (!val) return;
-  textInput.value = '';
-  textInput.style.height = 'auto';
-  iconMic.style.display  = 'block';
-  iconSend.style.display = 'none';
-  handleUserMessage(val);
-}
+/* INIT */
+$('hname').textContent=C.nome;
+const avimg=$('avimg');
+avimg.src=C.avatar;
+avimg.onerror=()=>{ avimg.style.display='none'; };
 
-/* ============================================================
-   ANEXO — imagens e arquivos
-============================================================ */
-const attachBtn  = document.getElementById('attach-btn');
-const attachMenu = document.getElementById('attach-menu');
-const fileInput  = document.getElementById('file-input');
-
-attachBtn.addEventListener('click', e => {
-  e.stopPropagation();
-  attachMenu.classList.toggle('show');
-});
-
-document.addEventListener('click', () => attachMenu.classList.remove('show'));
-
-document.getElementById('opt-image').addEventListener('click', () => {
-  fileInput.accept = 'image/*';
-  fileInput.click();
-  attachMenu.classList.remove('show');
-});
-
-document.getElementById('opt-file').addEventListener('click', () => {
-  fileInput.accept = '.pdf,.doc,.docx,.xls,.xlsx,.zip,.rar';
-  fileInput.click();
-  attachMenu.classList.remove('show');
-});
-
-fileInput.addEventListener('change', () => {
-  const file = fileInput.files[0];
-  if (!file) return;
-
-  const isImage = file.type.startsWith('image/');
-
-  if (isImage) {
-    const reader = new FileReader();
-    reader.onload = e => {
-      addMessage({ imgSrc: e.target.result, type: 'user', first: true });
-      fileInput.value = '';
-      // Bot responde
-      setTimeout(async () => {
-        await botSay("Recebi sua imagem! 📸 Posso te ajudar com mais alguma coisa sobre o *Método Bicarbonato*? 😊", { first: true });
-        showQuickReplies([
-          { label: "💰 Quanto custa?", value: "quanto custa" },
-          { label: "🛒 Quero comprar!", value: "quero comprar agora" },
-        ]);
-      }, 800);
-    };
-    reader.readAsDataURL(file);
-  } else {
-    addMessage({ fileData: { name: file.name, size: file.size }, type: 'user', first: true });
-    fileInput.value = '';
-    setTimeout(async () => {
-      await botSay(`Recebi o arquivo *${file.name}*! 📎\n\nPosso te ajudar com mais alguma coisa? 😊`, { first: true });
-    }, 800);
-  }
-});
-
-/* ============================================================
-   LIGHTBOX
-============================================================ */
-function openLightbox(src) {
-  document.getElementById('lightbox-img').src = src;
-  document.getElementById('lightbox').classList.add('show');
-}
-
-document.getElementById('lightbox-close').addEventListener('click', () => {
-  document.getElementById('lightbox').classList.remove('show');
-});
-
-document.getElementById('lightbox').addEventListener('click', e => {
-  if (e.target === document.getElementById('lightbox')) {
-    document.getElementById('lightbox').classList.remove('show');
-  }
-});
-
-/* ============================================================
-   HEADER — preenche com CONFIG
-============================================================ */
-document.getElementById('header-name').textContent   = CONFIG.botName;
-document.getElementById('header-status').textContent = CONFIG.botSubtitle;
-document.getElementById('avatar-emoji').textContent  = CONFIG.botEmoji;
-
-if (CONFIG.botAvatar) {
-  const img = document.getElementById('avatar-img');
-  img.src = CONFIG.botAvatar;
-  img.style.display = 'block';
-  document.getElementById('avatar-emoji').style.display = 'none';
-}
-
-/* ============================================================
-   INICIALIZA
-============================================================ */
-welcomeFlow();
+welcome();
 </script>
 </body>
 </html>
