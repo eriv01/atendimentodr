@@ -48,8 +48,7 @@ html,body{height:100%;background:#111B21;font-family:'Segoe UI','Helvetica Neue'
 .vid-wrap{position:relative;border-radius:8px;overflow:hidden;background:#000;width:100%}
 .vid-wrap video{display:block;width:100%;max-height:260px;object-fit:contain;border-radius:8px;background:#000}
 .vid-label{font-size:12px;color:var(--txt-l);margin-top:4px;text-align:center;font-style:italic}
-.vsl-overlay{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.72);color:#fff;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600;pointer-events:none;display:none;align-items:center;gap:5px;letter-spacing:.3px}
-.vsl-overlay.show{display:flex}
+.vsl-overlay{display:none!important}
 .vsl-bar-wrap{width:100%;height:4px;background:rgba(255,255,255,.2);border-radius:2px;margin-top:6px;overflow:hidden}
 .vsl-bar-fill{height:100%;background:var(--g-light);border-radius:2px;width:0%;transition:width .5s linear}
 .vsl-cta{display:none;width:100%;margin-top:10px;padding:11px 16px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;border-radius:24px;font-size:14.5px;font-weight:700;cursor:pointer;text-align:center;transition:transform .1s;box-shadow:0 3px 14px rgba(37,211,102,.4)}
@@ -396,35 +395,42 @@ async function advanceQuiz(){
   await botSay({quiz:{q:q.q,sub:q.sub,opts:q.opts,step:qStep}, first:true}, {delay: 1200 + Math.random()*600});
 }
 
+/* waitTap — mostra um botão "continuar" e pausa até o lead clicar */
+function waitTap(label='Continuar →'){
+  return new Promise(res=>{
+    const btn=document.createElement('button');
+    btn.className='qrb';
+    btn.style.cssText='margin:6px 0 4px 0;padding:9px 20px;font-size:14px;';
+    btn.textContent=label;
+    qrEl.appendChild(btn);
+    scrollB();
+    btn.addEventListener('click',()=>{qrEl.innerHTML='';res();},{once:true});
+  });
+}
+
 async function finalizarQuiz(){
   qAtivo=false;
 
-  // 1. Reação imediata — curta
+  // 1. Reação + processamento (automático, sem tap — curto)
   await botSay({text:"Ótimo, obrigado pelas respostas! 🙏", first:true}, {delay:900});
-
-  // 2. Pequena pausa de "processando"
   await botSay({text:"Deixa eu analisar seu perfil aqui... ⚙️", first:false}, {delay:1400});
-
-  // 3. Barra de progresso — visual de "calculando"
   await botSay({prog:{label:'Calculando sua fórmula exclusiva...',pct:100}, first:false}, {delay:2200});
-  await wait(600);
+  await wait(700);
 
-  // 4. Resultado da análise (texto médio — ~2s de typing)
+  // 2. Análise + receita — lead lê e toca para continuar
   const rec=calcReceita(qResp);
   const copy=gerarCopy(qResp,rec);
   await botSay({text:copy, first:true});
-
-  // 5. A receita em si — pausa dramática antes de revelar
-  await wait(400);
+  await wait(300);
   await botSay({recipe:rec, first:false}, {delay:1800});
+  await waitTap('Li minha receita — continuar 👇');
 
-  // 6. Explicação do que falta — mensagem longa, delay automático
+  // 3. O que falta + card de urgência — lead lê e toca para continuar
   await botSay({
     text:`Essa fórmula é *sua*. Calculada com base nas suas respostas — não é genérica. 🎯\n\nMas a receita sozinha é só o começo. O que transforma resultado em resultado *consistente* é o protocolo completo:\n\n📋 *Horários exatos* de cada dose\n🔥 *Potencializadores* que multiplicam o efeito x3\n🚫 *O que NUNCA misturar* — isso pode anular tudo\n📈 Ajustes progressivos conforme você avança`,
     first:true
   });
-
-  // 7. Card de urgência — pausa natural antes
+  await wait(400);
   await botSay({
     urgency:[
       {icon:'📦',text:'Protocolo completo passo a passo — do dia 1 ao dia 30'},
@@ -435,34 +441,32 @@ async function finalizarQuiz(){
     ],
     first:false
   }, {delay:1600});
+  await waitTap('Entendi — ver depoimentos 👇');
 
-  // 8. Gancho para os depoimentos — pausa natural
+  // 4. Depoimentos — lead toca para ver cada um
   await botSay({
     text:`Homens com o seu perfil sentiram os primeiros resultados em *${rec.prazo}*. 🔥\n\nOlha o que eles falam com as próprias palavras 👇`,
     first:true
-  }, {delay:2000});
+  }, {delay:1600});
 
-  // 9. Depoimentos em vídeo — gap menor entre eles, parece quem está mandando de uma vez
   for(let i=0;i<C.depos.length;i++){
     await botSay(
       {video:{url:C.depos[i].url,nome:C.depos[i].nome}, first:i===0},
-      {delay: i===0 ? 1000 : 650 + Math.random()*300}
+      {delay: i===0 ? 900 : 600 + Math.random()*300}
     );
+    // Após cada depoimento (exceto o último) pede para continuar
+    if(i < C.depos.length-1){
+      await waitTap('Ver próximo depoimento →');
+    }
   }
+  await wait(400);
 
-  // 10. Fechamento + CTA WhatsApp
+  // 5. CTA final — sem QR buttons, só o botão WhatsApp
   await botSay({
     text:`Resultados *reais*, de homens reais. 💪\n\nSua receita já está pronta. Clica abaixo e eu te mando o protocolo completo direto no seu WhatsApp — com o passo a passo para começar *hoje*. ⬇️`,
     ctaWpp:true,
     first:true
   }, {delay:1800});
-
-  setQR([
-    {label:"🛒 Garantir acesso completo!",v:"quero comprar agora"},
-    {label:"💳 Formas de pagamento",v:"formas de pagamento"},
-    {label:"🛡️ Tem garantia?",v:"tem garantia"},
-    {label:"💰 Quanto custa?",v:"quanto custa"},
-  ]);
 }
 
 /* === DEPOIMENTOS (manual) === */
