@@ -163,15 +163,13 @@ html,body{height:100%;background:#111B21;font-family:'Segoe UI','Helvetica Neue'
 const C = {
   nome:    "Dr. Ricardo Campo",
   avatar:  "https://metodotripe.shop/wp-content/uploads/2026/04/Screenshot-82.png",
-  link:    "#",
-  wppLink: "https://wa.me/5500000000000?text=Quero+receber+minha+receita+personalizada",
+  link:    "https://pay.wiapy.com/LJuEuullf4",
+  wppLink: "https://pay.wiapy.com/LJuEuullf4",
   produto: "Método Bicarbonato",
   vsl:     "https://metodotripe.shop/wp-content/uploads/2026/04/01-FUNIL-NOVO-SAUD.mp4",
   depos: [
     { url:"https://metodotripe.shop/wp-content/uploads/2026/04/01-dep.mp4", nome:"Carlos M., 47 anos" },
     { url:"https://metodotripe.shop/wp-content/uploads/2026/04/02_dep-baiano.mp4", nome:"Roberto S., 52 anos" },
-    { url:"https://metodotripe.shop/wp-content/uploads/2026/04/DR_VSL-01.mp4", nome:"Marcos T., 44 anos" },
-    { url:"https://metodotripe.shop/wp-content/uploads/2026/04/DR_VSL-01.mp4", nome:"Paulo R., 58 anos" },
   ],
 };
 
@@ -195,9 +193,7 @@ function calcReceita(r){
 }
 function gerarCopy(r,rec){
   const grave = rec.perfil==='Crítico';
-  const medio = rec.perfil==='Intermediário';
 
-  // Mapa de sintomas para linguagem clínica pesada
   const sintomasMap = {
     rigidez: "insuficiência vascular peniana grau II",
     matinal: "colapso na produção de testosterona livre",
@@ -233,25 +229,20 @@ function buildGrafico(perfil){
   div.innerHTML=`
     <div style="font-size:12px;font-weight:700;color:#075E54;margin-bottom:10px;letter-spacing:.3px;">📊 DIAGNÓSTICO: NÍVEL DE pH ANDROGÊNICO</div>
     <svg viewBox="0 0 280 110" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
-      <!-- grid lines -->
       <line x1="40" y1="10" x2="40" y2="85" stroke="#e0e0e0" stroke-width="1"/>
       <line x1="40" y1="85" x2="270" y2="85" stroke="#e0e0e0" stroke-width="1"/>
       <line x1="40" y1="47" x2="270" y2="47" stroke="#f0f0f0" stroke-width="1" stroke-dasharray="3,3"/>
-      <!-- label eixo Y -->
       <text x="2" y="89" font-size="8" fill="#999">0%</text>
       <text x="2" y="51" font-size="8" fill="#999">50%</text>
       <text x="2" y="14" font-size="8" fill="#999">100%</text>
-      <!-- barra ANTES -->
       <rect x="60" y="${85-(antes*0.75)}" width="60" height="${antes*0.75}" rx="4" fill="${cor}"/>
       <text x="90" y="${85-(antes*0.75)-5}" font-size="9" fill="${cor}" text-anchor="middle" font-weight="bold">${antes}%</text>
       <text x="90" y="98" font-size="9" fill="#666" text-anchor="middle">ANTES</text>
       <text x="90" y="107" font-size="8" fill="#999" text-anchor="middle">seu estado atual</text>
-      <!-- barra DEPOIS -->
       <rect x="160" y="${85-(depois*0.75)}" width="60" height="${depois*0.75}" rx="4" fill="#25D366"/>
       <text x="190" y="${85-(depois*0.75)-5}" font-size="9" fill="#128C7E" text-anchor="middle" font-weight="bold">${depois}%</text>
       <text x="190" y="98" font-size="9" fill="#666" text-anchor="middle">APÓS PROTOCOLO</text>
       <text x="190" y="107" font-size="8" fill="#128C7E" text-anchor="middle">com a sua fórmula</text>
-      <!-- seta entre barras -->
       <text x="135" y="52" font-size="16" fill="#075E54" text-anchor="middle">→</text>
     </svg>
     <div style="font-size:11px;color:#888;margin-top:4px;font-style:italic;text-align:center;">*Baseado em média dos pacientes com perfil ${perfil} — 30 dias de protocolo</div>
@@ -273,15 +264,10 @@ const FALLBACKS=[`Pode me perguntar qualquer coisa sobre o *Método Bicarbonato*
 /* === STATE === */
 let qStep=0, qResp={}, qAtivo=false;
 
-/* =====================================================
-   TIMING HUMANO
-   Calcula delay baseado no tamanho do texto + jitter
-   ===================================================== */
 function humanDelay(text, base=500){
   const len = (text||'').replace(/<[^>]*>/g,'').length;
-  // ~38ms por caractere, mín 800ms, máx 3800ms
   const typed = Math.min(600 + len * 38, 3800);
-  const jitter = Math.floor(Math.random() * 500) - 250; // ±250ms
+  const jitter = Math.floor(Math.random() * 500) - 250;
   return Math.max(base, typed + jitter);
 }
 
@@ -314,16 +300,13 @@ function addMsg({text,type,first=false,cta=false,ctaWpp=false,video,img,file,qui
     const v=document.createElement('video');v.src=video.url;v.controls=true;v.playsInline=true;v.preload='metadata';
     vw.appendChild(v);
     if(video.vsl){
-      // Overlay contador regressivo
       const ov=document.createElement('div');ov.className='vsl-overlay';
       const cdSpan=document.createElement('span');cdSpan.id='vsl-countdown';cdSpan.textContent='Assista: 24s';
       ov.innerHTML='<span>👁️</span>';ov.appendChild(cdSpan);
       vw.appendChild(ov);
       bub.appendChild(vw);
-      // Barra de progresso
       const bw=document.createElement('div');bw.className='vsl-bar-wrap';
       const bf=document.createElement('div');bf.className='vsl-bar-fill';bw.appendChild(bf);bub.appendChild(bw);
-      // Botão liberado após 24s
       const ctaV=document.createElement('button');ctaV.className='vsl-cta';ctaV.textContent='✅ Assistido! Continuar →';bub.appendChild(ctaV);
       const REQUIRED=24;let watched=0,timer=null,unlocked=false;
       function tick(){
@@ -366,15 +349,12 @@ function addMsg({text,type,first=false,cta=false,ctaWpp=false,video,img,file,qui
     bub.innerHTML=fmt(text);
   }
   if(cta){const a=document.createElement('a');a.className='cta-btn';a.href=C.link;a.target='_blank';a.rel='noopener';a.innerHTML=`🔥 Quero o ${C.produto} AGORA!`;bub.appendChild(a);}
-  if(ctaWpp){const a=document.createElement('a');a.className='cta-wpp';a.href=C.wppLink;a.target='_blank';a.rel='noopener';a.innerHTML=`<svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg> Receber minha receita no WhatsApp`;bub.appendChild(a);}
+  if(ctaWpp){const a=document.createElement('a');a.className='cta-wpp';a.href=C.wppLink;a.target='_blank';a.rel='noopener';a.innerHTML=`<svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg> Garantir meu acesso agora`;bub.appendChild(a);}
   wrap.appendChild(bub);wrap.appendChild(metaEl(type));
   msgEl.insertBefore(wrap,typEl);scrollB();
   return wrap;
 }
 
-/* =====================================================
-   botSay — usa humanDelay automaticamente se delay=-1
-   ===================================================== */
 async function botSay(opts, {delay=-1, first=false}={}){
   const d = delay === -1 ? humanDelay(opts.text||'') : delay;
   showTyp();
@@ -443,15 +423,12 @@ function quizNext(resp){
 }
 
 async function advanceQuiz(){
-  // Pausa curta — como se estivesse lendo antes de responder
   const acks = ["Anotado! ✅","Entendido 👍","Ok! 😊","Perfeito ⚡","Certo! 👌"];
   await botSay({text:rnd(acks), first:true}, {delay: 900 + Math.random()*500});
   const q=QUIZ[qStep]; qStep++;
-  // Pausa maior antes de enviar a próxima pergunta — simula "pensando e digitando"
   await botSay({quiz:{q:q.q,sub:q.sub,opts:q.opts,step:qStep}, first:true}, {delay: 1200 + Math.random()*600});
 }
 
-/* waitTap — mostra um botão "continuar" e pausa até o lead clicar */
 function waitTap(label='Continuar →'){
   return new Promise(res=>{
     const btn=document.createElement('button');
@@ -467,21 +444,17 @@ function waitTap(label='Continuar →'){
 async function finalizarQuiz(){
   qAtivo=false;
 
-  // 1. Processamento — automático, cria tensão
   await botSay({text:"Processando suas respostas... 🔬", first:true}, {delay:800});
   await botSay({prog:{label:'Cruzando dados com base clínica de 4.200 pacientes...',pct:100}, first:false}, {delay:2800});
   await wait(800);
 
-  // 2. Laudo clínico — tom de diagnóstico médico pesado
   const rec=calcReceita(qResp);
   const copy=gerarCopy(qResp,rec);
   await botSay({text:copy, first:true}, {delay:500});
   await wait(600);
 
-  // 3. Gráfico visual antes vs depois
   await botSay({text:"Veja o que acontece com o seu pH androgênico aplicando o protocolo correto 👇", first:false}, {delay:1800});
   await wait(400);
-  // Gráfico direto como bubble bot
   reinsT();
   const wrapG=document.createElement('div');wrapG.className='bw bot first';
   const bubG=document.createElement('div');bubG.className='bubble';bubG.style.padding='6px';
@@ -490,22 +463,18 @@ async function finalizarQuiz(){
   msgEl.insertBefore(wrapG,typEl);scrollB();
   await wait(1000);
 
-  // 4. Ponte antes da receita — cria antecipação
   await botSay({text:`Com base nesse diagnóstico, calculei a *fórmula exata* para o seu perfil *${rec.perfil}*.\n\nEssa é a dosagem que o seu organismo precisa para reverter o bloqueio androgênico. 👇`, first:true}, {delay:2200});
   await wait(300);
 
-  // 5. Receita — revelação
   await botSay({recipe:rec, first:false}, {delay:1600});
   await waitTap('Li o diagnóstico completo — continuar 👇');
 
-  // 6. Urgência médica — o que acontece se não agir
   await botSay({
     text:`Preciso ser direto com você.\n\nEssa receita *sozinha não resolve*. Ela é o primeiro passo.\n\nO que destrói o resultado de 9 em cada 10 homens que tentam em casa:\n\n⏰ *Horário errado* — tomar fora da janela metabólica anula o efeito\n⚗️ *Combinação proibida* — certos alimentos neutralizam o bicarbonato *na hora*\n📉 *Dosagem sem ajuste progressivo* — o corpo cria resistência em 7 dias\n\nNo protocolo completo, eu corrijo exatamente esses três erros. 🎯`,
     first:true
   });
   await wait(500);
 
-  // 7. O que está incluso
   await botSay({
     urgency:[
       {icon:'📋',text:'Protocolo dia a dia — horários exatos da sua fórmula'},
@@ -518,13 +487,12 @@ async function finalizarQuiz(){
   }, {delay:2000});
   await waitTap('Entendi — quero ver os resultados reais 👇');
 
-  // 8. Transição para depoimentos — copy pesado
   await botSay({
     text:`Antes de você decidir qualquer coisa, preciso te mostrar algo.\n\nEsses são homens com o *mesmo diagnóstico que o seu*.\n\nAssiste o que eles falam — com as próprias palavras, sem roteiro. 👇`,
     first:true
   }, {delay:2000});
 
-  // 9. Depoimentos controlados pelo lead
+  // Apenas 2 depoimentos
   for(let i=0;i<C.depos.length;i++){
     await botSay(
       {video:{url:C.depos[i].url,nome:C.depos[i].nome}, first:i===0},
@@ -536,9 +504,9 @@ async function finalizarQuiz(){
   }
   await wait(500);
 
-  // 10. CTA final — fechamento autoritário
+  // CTA final com copy atualizada mencionando 4 a 7 cm em 45 dias
   await botSay({
-    text:`Esses resultados não são coincidência.\n\nSão homens que tinham *exatamente* o seu diagnóstico — e que aplicaram o protocolo correto.\n\nSua receita já está calculada. O protocolo completo é o que falta para você ter o mesmo resultado.\n\n*Clica abaixo. Eu te mando tudo direto no WhatsApp agora.* ⬇️`,
+    text:`Esses resultados não são coincidência.\n\nSão homens que tinham *exatamente* o seu diagnóstico — e que reportaram ganhos de *4 a 7 centímetros em apenas 45 dias* aplicando o protocolo correto.\n\nSua receita já está calculada. O protocolo completo é o que falta para você ter o mesmo resultado.\n\n*Acessa agora pelo botão abaixo — acesso imediato após a confirmação.* ⬇️`,
     ctaWpp:true,
     first:true
   }, {delay:2500});
@@ -565,7 +533,7 @@ function matchIntent(input){
   return score>0?best:null;
 }
 
-/* === HANDLE USER (apenas pós-quiz) === */
+/* === HANDLE USER === */
 async function handleUser(display,value){
   if(qAtivo)return;
   clearQR();
@@ -579,42 +547,20 @@ async function handleUser(display,value){
   setQR([{label:"💰 Quanto custa?",v:"quanto custa"},{label:"✅ Tem garantia?",v:"tem garantia"},{label:"🛒 Quero comprar!",v:"quero comprar agora"},{label:"💬 Depoimentos",v:"__depos__"}]);
 }
 
-/* =====================================================
-   WELCOME — fragmentado em mensagens curtas
-   como uma pessoa real que digita no zap
-   ===================================================== */
+/* === WELCOME === */
 async function welcome(){
-  // Pausa inicial — parece que a pessoa acaba de abrir o chat
   await wait(800);
-
-  // Mensagem 1 — curtíssima, como um "oi" de verdade
   await botSay({text:"Olá! 👋", first:true}, {delay:700});
-
-  // Mensagem 2 — apresentação, separada da saudação
   await botSay({text:`Sou o *${C.nome}*. 😊`, first:false}, {delay:900});
-
-  // Mensagem 3 — contexto, antes do vídeo
   await botSay({text:"Você chegou no lugar certo.", first:false}, {delay:900});
-
-  // Mensagem 4 — chamada para o vídeo (mensagem separada como pessoa faz no zap)
   await botSay({text:"Antes de qualquer coisa, assiste esse vídeo aqui 👇", first:false}, {delay:1100});
-
-  // Vídeo VSL com bloqueio — fluxo para até o cara apertar "Continuar"
   await botSay({video:{url:C.vsl, vsl:true}, first:false}, {delay:800});
-  // Aguarda o clique no botão liberado após 24s
   await new Promise(res=>{ window._vslResolve=res; });
   await wait(600);
-
-  // Mensagem de transição — cria curiosidade antes do quiz
   await botSay({text:"Mais de *4.200 homens* já fizeram esse protocolo. 🔥", first:true}, {delay:1200});
-
   await botSay({text:"Mas a dose certa varia de pessoa pra pessoa.", first:false}, {delay:1100});
-
   await botSay({text:"Vou te fazer *5 perguntas rápidas* pra calcular a fórmula ideal pro *seu* perfil. 💊", first:false}, {delay:1400});
-
   await botSay({text:"Responde com sinceridade — cada resposta muda a receita. 👇", first:false}, {delay:1000});
-
-  // Inicia quiz
   qAtivo=true; qStep=0; qResp={};
   const q=QUIZ[qStep]; qStep++;
   await botSay({quiz:{q:q.q,sub:q.sub,opts:q.opts,step:qStep}, first:true}, {delay:1200});
@@ -642,7 +588,7 @@ fi.addEventListener('change',()=>{
 /* LIGHTBOX */
 function openLb(s){$('lbimg').src=s;$('lb').classList.add('show');}
 $('lbx').addEventListener('click',()=>$('lb').classList.remove('show'));
-$('lb').addEventListener('click',e=>{if(e.target===$('lb'))$('lb').classList.remove('show');});
+$('lb').addEventListener('click',e=>{if(e.target===$('lb'))$('lb').classList.remove('show'));});
 
 /* INIT */
 $('hname').textContent=C.nome;
