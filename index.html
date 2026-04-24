@@ -27,7 +27,7 @@
         .option-btn svg{flex-shrink:0;width:20px;height:20px;opacity:.75}
         .urgency-badge{background:rgba(34,197,94,.15);border:2px solid var(--green);padding:10px 14px;border-radius:50px;display:inline-block;margin-bottom:18px;font-weight:900;color:var(--green);font-size:clamp(10px,2.8vw,12px);line-height:1.3}
 
-        /* ===== TELA 02 — VÍDEO DEPOIMENTO (tela cheia vertical) ===== */
+        /* ===== TELA 02 — VÍDEO DEPOIMENTO ===== */
         .dep-video-wrap{
             position:relative;width:100%;
             background:#000;border-radius:14px;overflow:hidden;
@@ -46,29 +46,36 @@
             font-size:clamp(10px,2.8vw,12px);font-weight:900;
             color:var(--green);text-align:center;z-index:10;
         }
+        /* Barra "toque para ouvir" — visível apenas se não houve interação prévia */
+        .dep-sound-bar{
+            position:absolute;top:12px;left:12px;right:12px;
+            display:flex;align-items:center;gap:10px;
+            background:rgba(0,0,0,.78);backdrop-filter:blur(8px);
+            border:1.5px solid rgba(239,68,68,.6);border-radius:10px;
+            padding:10px 13px;z-index:20;cursor:pointer;
+            transition:opacity .3s, transform .3s;
+        }
+        .dep-sound-bar.hidden{opacity:0;pointer-events:none;transform:translateY(-6px)}
+        .dep-sound-bar-icon{font-size:20px;flex-shrink:0;animation:bounce-icon .8s ease-in-out infinite alternate}
+        .dep-sound-bar-text{font-size:clamp(12px,3.2vw,13px);font-weight:900;color:#fff;line-height:1.3;text-align:left}
+        .dep-sound-bar-text span{color:var(--primary)}
+        @keyframes bounce-icon{from{transform:scale(1)}to{transform:scale(1.25)}}
 
-        /* ===== TELA 05 — DEPOIMENTO SUTIL (horizontal/compacto) ===== */
+        /* ===== TELA 05 — DEPOIMENTOS MINI ===== */
         .dep-mini-wrap{
             display:flex;align-items:center;gap:12px;
             background:#0a0a0a;border:1px solid var(--border);
-            border-radius:14px;padding:10px;margin:12px 0;
-            overflow:hidden;
+            border-radius:14px;padding:10px;margin:12px 0;overflow:hidden;
         }
         .dep-mini-thumb{
             position:relative;flex-shrink:0;
             width:90px;height:160px;
-            background:#000;border-radius:10px;overflow:hidden;
-            border:1px solid #222;
+            background:#000;border-radius:10px;overflow:hidden;border:1px solid #222;
         }
-        .dep-mini-thumb video{
-            position:absolute;inset:0;width:100%;height:100%;
-            object-fit:cover;display:block;
-        }
+        .dep-mini-thumb video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
         .dep-mini-play{
-            position:absolute;inset:0;display:flex;
-            align-items:center;justify-content:center;
-            background:rgba(0,0,0,.35);z-index:5;
-            cursor:pointer;transition:background .2s;
+            position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+            background:rgba(0,0,0,.35);z-index:5;cursor:pointer;transition:background .2s;
         }
         .dep-mini-play:hover{background:rgba(0,0,0,.2)}
         .dep-mini-play svg{width:28px;height:28px;fill:#fff;filter:drop-shadow(0 1px 4px rgba(0,0,0,.6))}
@@ -217,15 +224,13 @@
         <h2 class="headline">VEJA QUEM JÁ USOU O PROTOCOLO</h2>
         <div class="urgency-badge">🟢 <span id="online-count-val">147</span> HOMENS FAZENDO AVALIAÇÃO AGORA</div>
 
-        <!-- Vídeo de depoimento — autoplay com som, vertical -->
         <div class="dep-video-wrap">
-            <video
-                id="dep-video"
-                playsinline
-                webkit-playsinline
-                preload="metadata"
-                muted
-            >
+            <!-- Barra "toque para ouvir" — some automaticamente após interação -->
+            <div class="dep-sound-bar hidden" id="dep-sound-bar" onclick="unmuteDepVid()">
+                <div class="dep-sound-bar-icon">🔊</div>
+                <div class="dep-sound-bar-text"><span>Toque aqui para ativar o som</span> do depoimento</div>
+            </div>
+            <video id="dep-video" playsinline webkit-playsinline preload="auto" muted>
                 <source src="https://metodotripe.shop/wp-content/uploads/2026/04/01.mp4" type="video/mp4">
             </video>
             <div class="dep-badge">✅ DEPOIMENTO REAL — RESULTADO VERIFICADO</div>
@@ -271,16 +276,9 @@
         </div>
 
         <!-- Depoimento 1 -->
-        <div class="dep-mini-wrap" id="dep-mini-wrap-1">
+        <div class="dep-mini-wrap">
             <div class="dep-mini-thumb">
-                <video
-                    id="dep-video-mini-1"
-                    playsinline
-                    webkit-playsinline
-                    preload="metadata"
-                    muted
-                    loop
-                >
+                <video id="dep-video-mini-1" playsinline webkit-playsinline preload="metadata" muted loop>
                     <source src="https://metodotripe.shop/wp-content/uploads/2026/04/01-dep.mp4" type="video/mp4">
                 </video>
                 <div class="dep-mini-play" id="dep-mini-play-btn-1">
@@ -296,16 +294,9 @@
         </div>
 
         <!-- Depoimento 2 -->
-        <div class="dep-mini-wrap" id="dep-mini-wrap-2">
+        <div class="dep-mini-wrap">
             <div class="dep-mini-thumb">
-                <video
-                    id="dep-video-mini-2"
-                    playsinline
-                    webkit-playsinline
-                    preload="metadata"
-                    muted
-                    loop
-                >
+                <video id="dep-video-mini-2" playsinline webkit-playsinline preload="metadata" muted loop>
                     <source src="https://metodotripe.shop/wp-content/uploads/2026/04/DEP-02-MEIO.mp4" type="video/mp4">
                 </video>
                 <div class="dep-mini-play" id="dep-mini-play-btn-2">
@@ -313,7 +304,7 @@
                 </div>
             </div>
             <div class="dep-mini-info">
-                <div class="dep-mini-label">Leandro pimenta peres</div>
+                <div class="dep-mini-label">Leandro Pimenta Peres</div>
                 <div class="dep-mini-stars">★★★★★</div>
                 <div class="dep-mini-quote">"Resultado real em menos de 30 dias. Não acreditava, mas funcionou."</div>
                 <div class="dep-mini-author">✅ Cliente verificado</div>
@@ -321,16 +312,9 @@
         </div>
 
         <!-- Depoimento 3 -->
-        <div class="dep-mini-wrap" id="dep-mini-wrap-3">
+        <div class="dep-mini-wrap">
             <div class="dep-mini-thumb">
-                <video
-                    id="dep-video-mini-3"
-                    playsinline
-                    webkit-playsinline
-                    preload="metadata"
-                    muted
-                    loop
-                >
+                <video id="dep-video-mini-3" playsinline webkit-playsinline preload="metadata" muted loop>
                     <source src="https://metodotripe.shop/wp-content/uploads/2026/04/DEP-01-INICIO.mp4" type="video/mp4">
                 </video>
                 <div class="dep-mini-play" id="dep-mini-play-btn-3">
@@ -354,64 +338,82 @@
 </div>
 
 <script>
-const CHECKOUT = 'https://pay.wiapy.com/LJuEuullf4';
+var CHECKOUT = 'https://pay.wiapy.com/LJuEuullf4';
+
+/* ===================================================
+   CONTROLE DE INTERAÇÃO DO USUÁRIO
+   Os navegadores mobile só permitem áudio após um gesto.
+   Rastreamos se o usuário JÁ tocou/clicou em algo na
+   tela 1. Se sim, ao entrar na tela 2 desmutamos direto.
+=================================================== */
+var userInteracted = false;
+
+function markInteracted(){
+    userInteracted = true;
+}
 
 /* ===================================================
    VÍDEO PRINCIPAL — TELA 01
 =================================================== */
-var vid = document.getElementById('main-video');
-var loadingEl = document.getElementById('video-loading');
-var seekbarFill = document.getElementById('seekbar-fill');
-var seekbar = document.getElementById('seekbar');
+var vid        = document.getElementById('main-video');
+var loadingEl  = document.getElementById('video-loading');
+var seekbarFill= document.getElementById('seekbar-fill');
+var seekbar    = document.getElementById('seekbar');
 var playerTime = document.getElementById('player-time');
-var iconPlay = document.getElementById('icon-play');
-var iconPause = document.getElementById('icon-pause');
-var playOverlay = document.getElementById('play-overlay');
-var iconVolOn = document.getElementById('icon-vol-on');
+var iconPlay   = document.getElementById('icon-play');
+var iconPause  = document.getElementById('icon-pause');
+var playOverlay= document.getElementById('play-overlay');
+var iconVolOn  = document.getElementById('icon-vol-on');
 var iconVolOff = document.getElementById('icon-vol-off');
-var videoHint = document.getElementById('video-hint');
+var videoHint  = document.getElementById('video-hint');
 
 function fmtTime(s){
     if(isNaN(s)||s===Infinity) return '0:00';
-    var m=Math.floor(s/60), sec=Math.floor(s%60);
+    var m=Math.floor(s/60),sec=Math.floor(s%60);
     return m+':'+(sec<10?'0':'')+sec;
 }
 function updateIcons(playing){
-    iconPlay.style.display  = playing ? 'none'  : 'block';
-    iconPause.style.display = playing ? 'block' : 'none';
+    iconPlay.style.display  = playing?'none':'block';
+    iconPause.style.display = playing?'block':'none';
     if(playing){ playOverlay.classList.remove('visible'); }
     else        { playOverlay.classList.add('visible');   }
 }
 function updateVolIcon(){
-    iconVolOn.style.display  = vid.muted ? 'none'  : 'block';
-    iconVolOff.style.display = vid.muted ? 'block' : 'none';
+    iconVolOn.style.display  = vid.muted?'none':'block';
+    iconVolOff.style.display = vid.muted?'block':'none';
 }
 vid.muted = true;
 updateVolIcon();
 
 setTimeout(function(){
     loadingEl.classList.add('hidden');
-    vid.play().then(function(){ updateIcons(true); })
-             .catch(function(e){ updateIcons(false); });
-}, 1000);
+    vid.play().then(function(){ updateIcons(true); }).catch(function(){ updateIcons(false); });
+}, 800);
+
+// Qualquer toque na página marca interação (usado pela tela 2)
+document.addEventListener('touchstart', markInteracted, {once:true, capture:true});
+document.addEventListener('click',      markInteracted, {once:true, capture:true});
 
 function unmuteOnInteraction(){
+    markInteracted();
     if(vid.muted){
         vid.muted=false; updateVolIcon();
         videoHint.style.opacity='0'; videoHint.style.transition='opacity .4s';
         setTimeout(function(){ videoHint.style.display='none'; },400);
     }
-    document.removeEventListener('click', unmuteOnInteraction);
-    document.removeEventListener('touchstart', unmuteOnInteraction);
+    document.removeEventListener('click',     unmuteOnInteraction);
+    document.removeEventListener('touchstart',unmuteOnInteraction);
 }
-document.addEventListener('click', unmuteOnInteraction);
-document.addEventListener('touchstart', unmuteOnInteraction);
+document.addEventListener('click',     unmuteOnInteraction);
+document.addEventListener('touchstart',unmuteOnInteraction);
 
 function togglePlay(){
+    markInteracted();
     if(vid.paused){ vid.play(); updateIcons(true); }
     else          { vid.pause(); updateIcons(false); }
 }
 function toggleMute(){
+    markInteracted();
     vid.muted=!vid.muted; updateVolIcon();
     if(!vid.muted){
         videoHint.style.opacity='0'; videoHint.style.transition='opacity .4s';
@@ -444,35 +446,59 @@ seekbar.addEventListener('touchstart', function(e){
 },{passive:false});
 
 function stopVideo(){ try{ vid.pause(); vid.currentTime=0; }catch(e){} }
-function goNext(){ stopVideo(); next(); }
+
+// Ao clicar no botão "Liberar" já marca interação
+function goNext(){ markInteracted(); stopVideo(); next(); }
 
 /* ===================================================
    VÍDEO DEPOIMENTO — TELA 02
+
+   Fluxo:
+   1. Inicia sempre mudo (garante autoplay em qualquer browser)
+   2. Se userInteracted === true (usuário tocou na tela 1),
+      desmuta imediatamente com 0ms de delay.
+   3. Se ainda não interagiu, mostra a barra "🔊 Toque para ouvir"
+      e desmuta no primeiro toque — que acontece naturalmente
+      ao rolar ou tocar qualquer parte da tela.
 =================================================== */
-var depVid = document.getElementById('dep-video');
-var depPlaying = false;
+var depVid      = document.getElementById('dep-video');
+var depSoundBar = document.getElementById('dep-sound-bar');
+
+function unmuteDepVid(){
+    if(!depVid) return;
+    depVid.muted = false;
+    if(depSoundBar) depSoundBar.classList.add('hidden');
+}
 
 function startDepVideo(){
     if(!depVid) return;
-    depVid.muted = false;
     depVid.currentTime = 0;
-    depVid.play().catch(function(){
-        depVid.muted = true;
-        depVid.play().catch(function(){});
-    });
-    depPlaying = true;
+    depVid.muted = true; // obrigatório para autoplay funcionar
+
+    depVid.play().catch(function(){});
+
+    if(userInteracted){
+        // Usuário já tocou antes → desmuta imediatamente
+        depVid.muted = false;
+        if(depSoundBar) depSoundBar.classList.add('hidden');
+    } else {
+        // Mostra barra de som e aguarda primeiro toque
+        if(depSoundBar) depSoundBar.classList.remove('hidden');
+        document.addEventListener('touchstart', unmuteDepVid, {once:true, capture:true, passive:true});
+        document.addEventListener('click',      unmuteDepVid, {once:true, capture:true});
+    }
 }
 
 function stopDepVideo(){
     if(!depVid) return;
-    try{ depVid.pause(); depVid.currentTime=0; }catch(e){}
-    depPlaying = false;
+    // Remove listeners pendentes
+    document.removeEventListener('touchstart', unmuteDepVid, true);
+    document.removeEventListener('click',      unmuteDepVid, true);
+    try{ depVid.pause(); depVid.currentTime=0; depVid.muted=true; }catch(e){}
+    if(depSoundBar) depSoundBar.classList.add('hidden');
 }
 
-function goNextS1(){
-    stopDepVideo();
-    next();
-}
+function goNextS1(){ stopDepVideo(); next(); }
 
 /* ===================================================
    VÍDEOS MINI — TELA 05 (3 depoimentos)
@@ -491,9 +517,8 @@ miniVideos.forEach(function(item, idx){
             item.btn.style.opacity='1';
             item.playing=false;
         } else {
-            // Pausa os outros ao iniciar este
-            miniVideos.forEach(function(other, otherIdx){
-                if(otherIdx !== idx && other.playing){
+            miniVideos.forEach(function(other, i){
+                if(i!==idx && other.playing){
                     other.vid.pause();
                     other.btn.style.opacity='1';
                     other.playing=false;
@@ -541,8 +566,7 @@ var QUESTIONS=[
     {id:'prioridade',t:'Ser maior e ter mais controle nas relações é uma prioridade REAL para você agora?',sub:'Sua resposta define o plano ideal para o seu perfil',o:[{icon:'target',text:'SIM — quero resolver isso o quanto antes'},{icon:'clock',text:'Sim — mas posso esperar um pouco'},{icon:'search',text:'Estou apenas pesquisando por agora'}]}
 ];
 
-var step=0, qIdx=0;
-var totalQ=QUESTIONS.length;
+var step=0, qIdx=0, totalQ=QUESTIONS.length;
 
 function next(){
     if(step===0){ step=1; }
@@ -561,10 +585,8 @@ function render(){
     document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
     document.getElementById('s-'+step).classList.add('active');
 
-    if(step===1){
-        setTimeout(startDepVideo, 300);
-    }
-    if(step!==1){ stopDepVideo(); }
+    if(step===1){ setTimeout(startDepVideo, 150); }
+    else        { stopDepVideo(); }
 
     if(step===2){
         var q=QUESTIONS[qIdx];
@@ -595,44 +617,27 @@ function animateGauge(id,pct){
     var valEl=document.getElementById('gv-'+id);
     if(valEl) valEl.textContent=pct+'%';
 }
-function activateCard(id){
-    var card=document.getElementById('mc-'+id);
-    if(card) card.classList.add('active');
-}
+function activateCard(id){ var c=document.getElementById('mc-'+id); if(c) c.classList.add('active'); }
 function completeCard(id){
-    var card=document.getElementById('mc-'+id);
-    if(card){ card.classList.remove('active'); card.classList.add('done'); }
-    var gf=document.getElementById('gf-'+id);
-    if(gf) gf.style.stroke='#22c55e';
-    var st=document.getElementById('ms-'+id);
-    if(st) st.textContent='Confirmado ✓';
+    var c=document.getElementById('mc-'+id);
+    if(c){ c.classList.remove('active'); c.classList.add('done'); }
+    var gf=document.getElementById('gf-'+id); if(gf) gf.style.stroke='#22c55e';
+    var st=document.getElementById('ms-'+id); if(st) st.textContent='Confirmado ✓';
 }
-
 function startProcessing(){
-    var stepDelay=600;
+    var d=600;
     METRIC_DATA.forEach(function(m,i){
-        setTimeout(function(){
-            activateCard(m.id);
-            var sl=document.getElementById('spinner-label');
-            if(sl) sl.textContent=SPINNER_LABELS[i];
-        },i*stepDelay);
-        setTimeout(function(){ animateGauge(m.id,m.pct); },i*stepDelay+150);
-        setTimeout(function(){ completeCard(m.id); },i*stepDelay+550);
+        setTimeout(function(){ activateCard(m.id); var sl=document.getElementById('spinner-label'); if(sl) sl.textContent=SPINNER_LABELS[i]; },i*d);
+        setTimeout(function(){ animateGauge(m.id,m.pct); },i*d+150);
+        setTimeout(function(){ completeCard(m.id); },i*d+550);
     });
+    setTimeout(function(){ var sl=document.getElementById('spinner-label'); if(sl) sl.textContent=SPINNER_LABELS[4]; },METRIC_DATA.length*d);
     setTimeout(function(){
-        var sl=document.getElementById('spinner-label');
-        if(sl) sl.textContent=SPINNER_LABELS[4];
-    },METRIC_DATA.length*stepDelay);
-    setTimeout(function(){
-        var center=document.getElementById('mc-center');
-        if(center) center.classList.add('done');
-        var cv=document.getElementById('center-value');
-        if(cv) cv.textContent='COMPATÍVEL — Plano Pronto ✓';
-        var cp=document.getElementById('check-path');
-        if(cp) cp.style.stroke='#22c55e';
-        var sw=document.getElementById('spinner-wrap');
-        if(sw) sw.style.opacity='0';
-    },METRIC_DATA.length*stepDelay+800);
+        var center=document.getElementById('mc-center'); if(center) center.classList.add('done');
+        var cv=document.getElementById('center-value'); if(cv) cv.textContent='COMPATÍVEL — Plano Pronto ✓';
+        var cp=document.getElementById('check-path');   if(cp) cp.style.stroke='#22c55e';
+        var sw=document.getElementById('spinner-wrap'); if(sw) sw.style.opacity='0';
+    },METRIC_DATA.length*d+800);
     setTimeout(function(){ step=4; render(); },5000);
 }
 
